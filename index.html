@@ -1,0 +1,2690 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Growdin.io</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1a12;
+  --bg-2:#0c1510;
+  --surface:#182a1c;
+  --surface-2:#1f3624;
+  --surface-3:#28402d;
+  --border:#2c4531;
+  --border-soft:#213a28;
+  --text:#eef1e4;
+  --text-dim:#aab9a4;
+  --text-faint:#79897a;
+  --gold:#d3a44e;
+  --gold-soft:#e6c581;
+  --leaf:#7fb96a;
+  --leaf-deep:#4f8d4a;
+  --clay:#b3703f;
+  --sky:#5f9bc9;
+  --tier-common:#93a690;
+  --tier-uncommon:#5fae63;
+  --tier-rare:#4a90c4;
+  --tier-epic:#a860d6;
+  --tier-legendary:#d3a44e;
+  --tier-secret:#df5470;
+  --danger:#d46a5a;
+  --radius-s:6px;
+  --radius-m:10px;
+  --radius-l:16px;
+  --shadow-soft:0 6px 20px rgba(0,0,0,.35);
+  --font-display:'Fraunces', serif;
+  --font-body:'Inter', -apple-system, sans-serif;
+}
+:root[data-theme="light"]{
+  --bg:#f3f1e6; --bg-2:#eae7d8; --surface:#fffdf5; --surface-2:#f2efdf; --surface-3:#e8e3cc;
+  --border:#d8d2b8; --border-soft:#e3ddc4; --text:#22301f; --text-dim:#54614e; --text-faint:#8a927f;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--font-body);height:100%;}
+body{overflow-x:hidden;}
+button{font-family:inherit;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+.app{display:flex;min-height:100vh;}
+
+/* ---------- Sidebar / nav ---------- */
+.sidebar{
+  width:220px; flex-shrink:0; background:var(--bg-2); border-right:1px solid var(--border-soft);
+  display:flex; flex-direction:column; padding:20px 14px; gap:4px;
+}
+.brand{
+  font-family:var(--font-display); font-weight:600; font-size:22px; color:var(--gold-soft);
+  padding:4px 10px 18px; display:flex; align-items:baseline; gap:8px; letter-spacing:.2px;
+}
+.brand .mark{font-size:20px;}
+.navbtn{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:var(--radius-s);
+  background:transparent; border:none; color:var(--text-dim); text-align:left; cursor:pointer;
+  font-size:14.5px; font-weight:500; transition:background .15s, color .15s;
+}
+.navbtn:hover{background:var(--surface-2); color:var(--text);}
+.navbtn.active{background:var(--surface-2); color:var(--gold-soft);}
+.navbtn .ic{width:18px; text-align:center; font-size:15px;}
+.nav-spacer{flex:1;}
+.sidebar-foot{padding:10px 8px; font-size:11.5px; color:var(--text-faint); line-height:1.5;}
+
+/* ---------- Main ---------- */
+.main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; overflow:hidden;}
+.topbar{
+  display:flex; align-items:center; gap:18px; padding:14px 24px; border-bottom:1px solid var(--border-soft);
+  background:linear-gradient(180deg, var(--bg-2), var(--bg)); flex-wrap:wrap;
+}
+.stat{display:flex; flex-direction:column; gap:1px;}
+.stat .v{font-family:var(--font-display); font-size:17px; font-weight:600; color:var(--gold-soft);}
+.stat .l{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint);}
+.topbar-spacer{flex:1;}
+.event-pill{
+  display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--border);
+  padding:7px 12px; border-radius:999px; font-size:12.5px; color:var(--text-dim); cursor:pointer;
+}
+.event-pill.live{border-color:var(--gold); color:var(--gold-soft);}
+.event-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--text-faint);}
+.event-pill.live .dot{background:var(--gold); box-shadow:0 0 8px var(--gold);}
+
+.content{flex:1; overflow-y:auto; padding:26px 28px 60px;}
+.view{display:none;}
+.view.active{display:block; animation:fadein .2s ease;}
+@keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+h1.pagetitle{font-family:var(--font-display); font-weight:600; font-size:26px; margin:0 0 4px;}
+p.pagesub{color:var(--text-dim); margin:0 0 22px; font-size:14px; max-width:60ch;}
+
+/* ---------- Home / clicker ---------- */
+.homegrid{display:grid; grid-template-columns:1fr 300px; gap:22px; align-items:start;}
+.clicker-card{
+  background:radial-gradient(120% 140% at 50% 0%, var(--surface-2), var(--surface) 70%);
+  border:1px solid var(--border); border-radius:var(--radius-l); padding:30px 24px 26px;
+  display:flex; flex-direction:column; align-items:center; position:relative; overflow:hidden;
+  min-height:420px; justify-content:center;
+}
+.seed-name-tag{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); margin-bottom:4px;}
+.seed-title{font-family:var(--font-display); font-size:24px; font-weight:600; margin-bottom:18px; text-align:center;}
+.seed-title .tiertext{font-size:12px; vertical-align:middle; margin-left:8px; padding:2px 8px; border-radius:999px; border:1px solid currentColor; font-family:var(--font-body); font-weight:600; letter-spacing:.03em;}
+.seed-btn-wrap{position:relative; width:230px; height:230px;}
+.seed-btn{
+  width:230px; height:230px; border-radius:50%; border:3px solid var(--border);
+  background:radial-gradient(circle at 35% 30%, var(--surface-3), var(--surface-2) 65%, var(--bg-2));
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  user-select:none; transition:transform .06s ease; position:relative; box-shadow:var(--shadow-soft), inset 0 0 30px rgba(0,0,0,.3);
+}
+.seed-btn svg{filter:drop-shadow(0 6px 10px rgba(0,0,0,.45)); display:block;}
+.seedcard .emo svg, .reel-item svg, .reel-result .emoji svg, .fusion-tier svg{display:block; filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));}
+.seed-btn:active{transform:scale(.94);}
+.seed-btn.buffed{border-color:var(--gold); box-shadow:0 0 28px rgba(211,164,78,.45), inset 0 0 30px rgba(0,0,0,.3);}
+.float-plus{
+  position:absolute; pointer-events:none; font-family:var(--font-display); font-weight:600; color:var(--gold-soft);
+  font-size:20px; animation:floatup 1s ease-out forwards; white-space:nowrap;
+}
+@keyframes floatup{ from{opacity:1; transform:translate(-50%,0);} to{opacity:0; transform:translate(-50%,-70px);} }
+.clickinfo{display:flex; gap:22px; margin-top:20px; flex-wrap:wrap; justify-content:center;}
+.clickinfo .ci{text-align:center;}
+.clickinfo .ci b{display:block; font-family:var(--font-display); font-size:16px; color:var(--text);}
+.clickinfo .ci span{font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.05em;}
+
+.side-panel{display:flex; flex-direction:column; gap:14px;}
+.panel-card{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m); padding:16px;}
+.panel-card h3{margin:0 0 10px; font-family:var(--font-display); font-size:15px; font-weight:600; color:var(--gold-soft);}
+.mini-row{display:flex; justify-content:space-between; font-size:13px; padding:5px 0; color:var(--text-dim); border-bottom:1px dashed var(--border-soft);}
+.mini-row:last-child{border-bottom:none;}
+.mini-row b{color:var(--text); font-weight:600;}
+.btn{
+  border:1px solid var(--border); background:var(--surface-2); color:var(--text); padding:9px 14px; border-radius:var(--radius-s);
+  cursor:pointer; font-size:13.5px; font-weight:600; transition:background .15s, border-color .15s, opacity .15s;
+}
+.btn:hover:not(:disabled){background:var(--surface-3); border-color:var(--leaf-deep);}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.btn.primary{background:linear-gradient(180deg, var(--gold), #b8863a); border-color:#b8863a; color:#1c1305;}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08);}
+.btn.full{width:100%;}
+.btn.danger{background:var(--danger); border-color:var(--danger); color:#2a0e08;}
+.btn.small{padding:5px 10px; font-size:12px;}
+
+/* ---------- Buffs / fertilizer / admin abuse ---------- */
+.buffchips{display:flex; gap:8px; flex-wrap:wrap;}
+.buffchip{background:var(--surface-3); border:1px solid var(--gold); color:var(--gold-soft); font-size:11px; padding:4px 10px; border-radius:999px; white-space:nowrap;}
+.fertilizer-btn{
+  margin-top:16px; background:linear-gradient(180deg,#7a5530,#4a3018); border:1px solid var(--clay); color:#ffe9c7;
+  padding:10px 18px; border-radius:999px; cursor:pointer; font-weight:700; font-size:13px;
+  animation:pulseglow 1.5s ease-in-out infinite; box-shadow:0 0 14px rgba(179,112,63,.4);
+}
+@keyframes pulseglow{0%,100%{filter:brightness(1);}50%{filter:brightness(1.25);}}
+.adminbanner{
+  margin-top:16px; padding:14px 18px; border-radius:var(--radius-m); width:100%; max-width:420px;
+  background:linear-gradient(135deg,#4a1030,#2a0a1c); border:1px solid var(--tier-secret); color:#ffd7e6;
+  cursor:pointer; font-weight:700; text-align:center; animation:pulseglow 1s ease-in-out infinite;
+}
+
+/* ---------- Roll view ---------- */
+.rollzone{display:flex; flex-direction:column; align-items:center; gap:18px; padding:10px 0 20px;}
+.roll-range-note{color:var(--text-dim); font-size:13px;}
+.reel{
+  width:100%; max-width:520px; height:120px; background:var(--surface); border:1px solid var(--border-soft);
+  border-radius:var(--radius-m); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;
+}
+.reel .reel-track{display:flex; align-items:center; gap:14px;}
+.reel-item{
+  width:84px; height:84px; border-radius:var(--radius-m); background:var(--surface-2); border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:38px; flex-shrink:0;
+}
+.reel-result{position:absolute; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; gap:4px; background:var(--surface); animation:popin .35s ease;}
+@keyframes popin{from{opacity:0; transform:scale(.85);} to{opacity:1; transform:scale(1);}}
+.reel-result .emoji{font-size:52px;}
+.reel-result .name{font-family:var(--font-display); font-weight:600; font-size:16px;}
+.reel-result .sub{font-size:12px; color:var(--text-faint);}
+.reel-result.new::after{content:"NEW"; position:absolute; top:8px; right:12px; font-size:10px; letter-spacing:.08em; color:var(--gold-soft); border:1px solid var(--gold); border-radius:999px; padding:2px 8px;}
+
+/* ---------- Grids: inventory / collection ---------- */
+.seedgrid{display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:12px;}
+.seedcard{
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m); padding:12px 10px;
+  display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; text-align:center; position:relative;
+  transition:border-color .15s, transform .1s;
+}
+.seedcard:hover{border-color:var(--leaf-deep); transform:translateY(-2px);}
+.seedcard.active-pick{border-color:var(--gold); box-shadow:0 0 0 1px var(--gold) inset;}
+.seedcard.locked{opacity:.35; cursor:default;}
+.seedcard .emo{font-size:34px;}
+.seedcard .cnt{position:absolute; top:6px; right:8px; font-size:11px; background:var(--surface-3); padding:1px 6px; border-radius:999px; color:var(--text-dim);}
+.seedcard .nm{font-size:12px; font-weight:600; line-height:1.25;}
+.seedcard .cv{font-size:11px; color:var(--text-faint);}
+.tierbar{width:26px; height:3px; border-radius:2px; margin-top:2px;}
+
+/* ---------- Upgrades ---------- */
+.upgrade-cols{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:16px;}
+.upgrade-card{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-l); padding:18px;}
+.upgrade-card h3{margin:0 0 4px; font-family:var(--font-display); font-size:17px;}
+.upgrade-card .desc{font-size:12.5px; color:var(--text-dim); margin-bottom:14px; line-height:1.5;}
+.upgrade-level{font-size:13px; color:var(--text-dim); margin-bottom:10px;}
+.upgrade-level b{color:var(--gold-soft);}
+.progressbar{height:6px; background:var(--surface-3); border-radius:4px; overflow:hidden; margin-bottom:14px;}
+.progressbar > div{height:100%; background:linear-gradient(90deg, var(--leaf-deep), var(--leaf));}
+.cost-row{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.cost-row .cost{font-size:13px; color:var(--text-dim);}
+.cost-row .cost b{color:var(--gold-soft);}
+
+/* ---------- Fusion ---------- */
+.fusion-row{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m); padding:14px; margin-bottom:12px;}
+.fusion-tier{display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 10px; border-radius:var(--radius-s); background:var(--surface-2); min-width:74px; border:1px solid var(--border-soft);}
+.fusion-arrow{font-size:18px; color:var(--text-faint); align-self:center;}
+
+/* ---------- Minigames ---------- */
+.mg-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px;}
+.mg-card{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-l); padding:18px; text-align:center;}
+.mg-card h3{margin:8px 0 6px; font-family:var(--font-display); font-size:16px;}
+.mg-card .cd{font-size:11.5px; color:var(--text-faint); margin-top:10px;}
+
+/* ---------- Events ---------- */
+.eventbanner{
+  border-radius:var(--radius-l); padding:22px; margin-bottom:20px; position:relative; overflow:hidden;
+  background:linear-gradient(135deg, var(--surface-2), var(--surface)); border:1px solid var(--border);
+}
+.eventbanner.live{border-color:var(--gold);}
+.eventbanner h2{margin:0 0 6px; font-family:var(--font-display); font-size:22px;}
+.eventbanner p{margin:0; color:var(--text-dim); font-size:13.5px;}
+.eventbanner .timer{font-family:var(--font-display); font-size:15px; color:var(--gold-soft); margin-top:10px;}
+.eventlist{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px;}
+.eventdef{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-m); padding:14px;}
+.eventdef .ic{font-size:22px;}
+.eventdef h4{margin:8px 0 4px; font-size:14px;}
+.eventdef p{margin:0; font-size:12px; color:var(--text-faint); line-height:1.5;}
+.rain-fx,.sun-fx,.meteor-fx{position:absolute; inset:0; pointer-events:none; overflow:hidden;}
+.drop{position:absolute; top:-10%; width:2px; height:14px; background:linear-gradient(var(--sky),transparent); animation:fall linear infinite;}
+@keyframes fall{to{transform:translateY(600%);}}
+.sunglow{position:absolute; top:-40%; left:50%; width:220px; height:220px; background:radial-gradient(circle, rgba(211,164,78,.35), transparent 70%); transform:translateX(-50%); animation:pulse 3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+
+/* ---------- Multiplayer ---------- */
+.roomcode{font-family:var(--font-display); font-size:30px; letter-spacing:.12em; color:var(--gold-soft); text-align:center; padding:16px; background:var(--surface-2); border-radius:var(--radius-m); border:1px dashed var(--border);}
+.memberlist{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+.memberrow{display:flex; align-items:center; justify-content:between; gap:10px; padding:8px 10px; background:var(--surface-2); border-radius:var(--radius-s); font-size:13px;}
+.memberrow .who{flex:1;}
+.tradebox{display:flex; flex-direction:column; gap:10px;}
+.tradepick{display:flex; gap:10px; flex-wrap:wrap;}
+.select-like{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-s); padding:8px 10px; color:var(--text); font-size:13px;}
+.tradelog{display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto;}
+.tradeitem{background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-s); padding:10px 12px; font-size:12.5px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+.badge{font-size:10.5px; padding:2px 7px; border-radius:999px; border:1px solid var(--border); color:var(--text-faint);}
+.badge.pending{color:var(--gold-soft); border-color:var(--gold);}
+.badge.done{color:var(--leaf); border-color:var(--leaf-deep);}
+
+/* ---------- Settings ---------- */
+.settingsrow{display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border-soft);}
+.settingsrow:last-child{border-bottom:none;}
+.settingsrow .lbl{font-size:14px;}
+.settingsrow .sub{font-size:12px; color:var(--text-faint); margin-top:2px;}
+.switch{width:42px; height:24px; background:var(--surface-3); border-radius:999px; position:relative; cursor:pointer; border:1px solid var(--border);}
+.switch.on{background:var(--leaf-deep);}
+.switch::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .15s;}
+.switch.on::after{transform:translateX(18px);}
+
+/* ---------- Modal / toast ---------- */
+.overlay{position:fixed; inset:0; background:rgba(6,10,7,.6); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
+.overlay.show{display:flex;}
+.modal{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-l); padding:22px; max-width:420px; width:100%; box-shadow:var(--shadow-soft);}
+.modal h3{margin:0 0 10px; font-family:var(--font-display); font-size:18px;}
+.modal p{font-size:13.5px; color:var(--text-dim); line-height:1.5;}
+.modal .actions{display:flex; gap:10px; margin-top:16px; justify-content:flex-end;}
+.toastwrap{position:fixed; bottom:18px; left:50%; transform:translateX(-50%); z-index:60; display:flex; flex-direction:column; gap:8px; align-items:center;}
+.toast{background:var(--surface-3); border:1px solid var(--border); padding:10px 16px; border-radius:999px; font-size:12.5px; box-shadow:var(--shadow-soft); animation:toastin .25s ease;}
+@keyframes toastin{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+
+/* ---------- Mobile ---------- */
+.topnav-mobile{display:none;}
+@media (max-width: 880px){
+  .sidebar{display:none;}
+  .app{flex-direction:column;}
+  .main{height:auto; min-height:100vh;}
+  .content{padding:16px 14px 90px;}
+  .topbar{padding:12px 14px;}
+  .homegrid{grid-template-columns:1fr;}
+  .topnav-mobile{
+    display:flex; position:fixed; bottom:0; left:0; right:0; background:var(--bg-2); border-top:1px solid var(--border-soft);
+    z-index:40; overflow-x:auto; padding:6px 4px;
+  }
+  .topnav-mobile .navbtn{flex-direction:column; gap:3px; font-size:10px; padding:8px 10px; white-space:nowrap;}
+  .topnav-mobile .navbtn .ic{font-size:17px;}
+  .brand{display:none;}
+}
+
+<style>
+.friend-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.friend-list{display:flex;flex-direction:column;gap:8px}
+.friend-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025)}
+.friend-name{font-weight:600}.friend-meta{font-size:11px;color:var(--text-dim);margin-top:2px}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#777}
+.status-dot.online{background:#58c47a;box-shadow:0 0 7px rgba(88,196,122,.5)}
+.status-dot.offline{background:#777}
+.request-badge{display:inline-flex;min-width:20px;height:20px;align-items:center;justify-content:center;border-radius:10px;background:var(--accent);color:#111;font-size:11px;font-weight:700;padding:0 6px}
+.invite-pop{position:fixed;right:20px;bottom:20px;z-index:1000;max-width:360px;padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--panel);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+@media(max-width:800px){.friend-grid{grid-template-columns:1fr}}
+</style>
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAYnYLzeh6y5eL3SaU0NlCrLJWCUoL2PD0",
+    authDomain: "growdinio.firebaseapp.com",
+    projectId: "growdinio",
+    storageBucket: "growdinio.firebasestorage.app",
+    messagingSenderId: "435309006798",
+    appId: "1:435309006798:web:8eb933e3c7a7533993259f"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const firebaseAuth = firebase.auth();
+  const firebaseDb = firebase.firestore();
+</script>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebarNav">
+    <div class="brand"><span class="mark">&#127793;</span> Growdin.io</div>
+    <button class="navbtn active" data-view="home"><span class="ic">&#8962;</span> Дом</button>
+    <button class="navbtn" data-view="inventory"><span class="ic">&#127991;</span> Инвентарь</button>
+    <button class="navbtn" data-view="roll"><span class="ic">&#127920;</span> Ролл</button>
+    <button class="navbtn" data-view="fusion"><span class="ic">&#10024;</span> Слияние</button>
+    <button class="navbtn" data-view="upgrades"><span class="ic">&#9889;</span> Апгрейды</button>
+    <button class="navbtn" data-view="wheels"><span class="ic">&#127922;</span> Колёса</button>
+    <button class="navbtn" data-view="minigames"><span class="ic">&#128722;</span> Магазин</button>
+    <button class="navbtn" data-view="events"><span class="ic">&#9925;</span> События</button>
+    <button class="navbtn" data-view="multiplayer"><span class="ic">&#128101;</span> Мультиплеер</button>
+    <button class="navbtn" data-view="collection"><span class="ic">&#128220;</span> Коллекция</button>
+    <button class="navbtn" data-view="settings"><span class="ic">&#9881;</span> Настройки</button>
+    <div class="nav-spacer"></div>
+    <div class="sidebar-foot" id="sidebarFoot">Прогресс сохраняется автоматически.</div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="stat"><div class="v" id="statMoney">$0</div><div class="l">Деньги</div></div>
+      <div class="stat"><div class="v" id="statPerClick">$1</div><div class="l">За клик</div></div>
+      <div class="stat"><div class="v" id="statMult">1.0x</div><div class="l">Множитель</div></div>
+      <div class="stat"><div class="v" id="statLuck">Ур 1</div><div class="l">Удача ролла</div></div>
+      <div class="stat"><div class="v" id="statAuto">Выкл</div><div class="l">Автоклик</div></div>
+      <div class="topbar-spacer"></div>
+      <div class="event-pill" id="eventPill" data-view="events">
+        <span class="dot"></span><span id="eventPillText">Нет события — через --:--</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- HOME -->
+      <section class="view active" id="view-home">
+        <h1 class="pagetitle">Выращивай свою коллекцию</h1>
+        <p class="pagesub">Кликай по активному семечку ради денег, крути ролл ради новых семян и вкладывай всё в апгрейды. Здесь ничего не бывает быстро — в этом и суть.</p>
+        <div class="homegrid">
+          <div class="clicker-card" id="clickerCard">
+            <div class="seed-name-tag">Активное семечко</div>
+            <div class="seed-title" id="activeSeedTitle">—</div>
+            <div class="seed-btn-wrap">
+              <button class="seed-btn" id="seedBtn"></button>
+            </div>
+            <div class="clickinfo">
+              <div class="ci"><b id="ciPerClick">$1</b><span>За клик</span></div>
+              <div class="ci"><b id="ciTotalClicks">0</b><span>Всего кликов</span></div>
+              <div class="ci"><b id="ciOwned">0</b><span>Копий в наличии</span></div>
+            </div>
+            <button class="fertilizer-btn" id="fertilizerBtn" style="display:none;">&#128169;&#127793; Удобрение готово — собрать (x1.8 на 2 мин)</button>
+            <div class="adminbanner" id="adminAbuseBanner" style="display:none;">&#9889; АДМИН АБЬЮЗ ДОСТУПЕН — забрать +$2000 и x1.5 на 5 мин</div>
+            <div class="buffchips" id="buffChips" style="margin-top:14px;"></div>
+          </div>
+          <div class="side-panel">
+            <div class="panel-card">
+              <h3>Прогресс</h3>
+              <div class="mini-row"><span>Семян найдено</span><b id="miniDiscovered">0 / 100</b></div>
+              <div class="mini-row"><span>Роллов сделано</span><b id="miniRolls">0</b></div>
+              <div class="mini-row"><span>Удача ролла</span><b id="miniLuck">Уровень 1</b></div>
+              <div class="mini-row"><span>Множитель денег</span><b id="miniMult">1.0x</b></div>
+              <div class="mini-row"><span>Автоклик</span><b id="miniAuto">Не куплен</b></div>
+            </div>
+            <div class="panel-card">
+              <h3>Быстрые действия</h3>
+              <button class="btn primary full" data-view="roll" style="margin-bottom:8px;">Крутить ролл</button>
+              <button class="btn full" data-view="upgrades" style="margin-bottom:8px;">Купить апгрейды</button>
+              <button class="btn full" data-view="minigames">Магазин</button>
+            </div>
+            <div class="panel-card" id="secretPanel" style="display:none;">
+              <h3 style="color:var(--tier-secret);">Секретные семена</h3>
+              <p style="font-size:12.5px; color:var(--text-dim); line-height:1.5; margin:0 0 10px;">Потужное Украинское Насіння и Green Elephant Seed. Они намного сильнее обычных семян.</p>
+              <button class="btn full" style="border-color:var(--tier-secret); color:var(--tier-secret);" id="secretRollBtn">Открыть секретные семена</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVENTORY -->
+      <section class="view" id="view-inventory">
+        <h1 class="pagetitle">Инвентарь</h1>
+        <p class="pagesub">Все семена, которые ты когда-либо получала, сгруппированные по виду и качеству. Нажми, чтобы сделать активным для клика.</p>
+        <div class="seedgrid" id="inventoryGrid"></div>
+      </section>
+
+      <!-- ROLL -->
+      <section class="view" id="view-roll">
+        <h1 class="pagetitle">Крутить ролл</h1>
+        <p class="pagesub" id="rollRangeNote">Уровень удачи определяет, какие семена тебе доступны.</p>
+        <div class="rollzone">
+          <div class="reel" id="reel">
+            <div class="reel-track" id="reelTrack"></div>
+            <div class="reel-result" id="reelResult">
+              <div class="emoji" id="reelResultEmoji">&#127793;</div>
+              <div class="name" id="reelResultName">—</div>
+              <div class="sub" id="reelResultSub">—</div>
+            </div>
+          </div>
+          <button class="btn primary" id="rollBtn" style="font-size:15px; padding:12px 26px;">Крутить — <span id="rollCostLabel">$0</span></button>
+          <div class="panel-card" style="width:100%; max-width:520px;">
+            <h3>Шансы на текущем уровне удачи</h3>
+            <div id="oddsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FUSION -->
+      <section class="view" id="view-fusion">
+        <h1 class="pagetitle">Слияние</h1>
+        <p class="pagesub">Собери 4 одинаковых семени одного качества, чтобы получить 1 семя следующего качества — обычное → золотое → алмазное → мифическое → небесное. 8 небесных можно объединить в радужное. Слияние происходит только вручную, семена сами не объединяются.</p>
+        <div id="fusionGrid"></div>
+      </section>
+
+      <!-- UPGRADES -->
+      <section class="view" id="view-upgrades">
+        <h1 class="pagetitle">Апгрейды</h1>
+        <p class="pagesub">Три долгие дороги. Все специально дорогие.</p>
+        <div class="upgrade-cols">
+          <div class="upgrade-card">
+            <h3>Множитель денег</h3>
+            <div class="desc">Каждый уровень добавляет +0.1x ко всем деньгам — от кликов и от автоклика.</div>
+            <div class="upgrade-level">Уровень <b id="multLevel">0</b> / <span id="multMaxLevel">80</span> — сейчас <b id="multCurrent">1.0x</b></div>
+            <div class="progressbar"><div id="multProgress" style="width:0%"></div></div>
+            <div class="cost-row">
+              <div class="cost">Далее: <b id="multNextCost">—</b></div>
+              <button class="btn primary" id="buyMult">Купить</button>
+            </div>
+          </div>
+          <div class="upgrade-card">
+            <h3>Автоклик</h3>
+            <div class="desc">Кликает по активному семечку за тебя по таймеру. Начинается с 1 раза в 15 секунд и ускоряется на 1 секунду за уровень.</div>
+            <div class="upgrade-level">Уровень <b id="autoLevel">0</b> / <span id="autoMaxLevel">20</span> — сейчас <b id="autoCurrent">не куплен</b></div>
+            <div class="progressbar"><div id="autoProgress" style="width:0%"></div></div>
+            <div class="cost-row">
+              <div class="cost">Далее: <b id="autoNextCost">—</b></div>
+              <button class="btn primary" id="buyAuto">Купить</button>
+            </div>
+          </div>
+          <div class="upgrade-card">
+            <h3>Удача ролла</h3>
+            <div class="desc">На уровне N ты можешь выбить только семена №N и №N+1 — семечко послабее выпадает с шансом 75%, следующее за ним — с 25%. Единственный путь дойти до семечка №100.</div>
+            <div class="upgrade-level">Уровень <b id="luckLevel">1</b> / <span id="luckMaxLevel">99</span> — пул <b id="luckPoolLabel">#1–#2</b></div>
+            <div class="progressbar"><div id="luckProgress" style="width:0%"></div></div>
+            <div class="cost-row">
+              <div class="cost">Далее: <b id="luckNextCost">—</b></div>
+              <button class="btn primary" id="buyLuck">Купить</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MINIGAMES -->
+      <section class="view" id="view-minigames">
+        <h1 class="pagetitle">Магазин</h1>
+        <p class="pagesub">Сток обновляется каждые 5 минут. Здесь можно купить зелья, спины и другие полезные предметы.</p>
+        <div class="mg-grid" id="minigamesGrid"></div>
+      </section>
+
+      <!-- WHEELS -->
+      <section class="view" id="view-wheels">
+        <h1 class="pagetitle">Колёса фортуны</h1>
+        <p class="pagesub">Несколько отдельных колёс. Удача влияет на редкость награды.</p>
+        <div class="wheel-grid" id="wheelGrid"></div>
+        <div class="panel-card" style="margin-top:18px;">
+          <h3>Мои питомцы</h3><div id="petEquipPanel"></div>
+        </div>
+      </section>
+
+      <!-- EVENTS -->
+      <section class="view" id="view-events">
+        <h1 class="pagetitle">События</h1>
+        <p class="pagesub">Глобальное событие запускается примерно каждые 40 минут и длится ровно 2 минуты. Оно синхронизировано с часами — все видят одно и то же событие одновременно.</p>
+        <div class="eventbanner" id="eventBanner">
+          <div class="rain-fx" id="rainFx" style="display:none;"></div>
+          <div class="sun-fx" id="sunFx" style="display:none;"><div class="sunglow"></div></div>
+          <h2 id="eventBannerTitle">Сейчас нет события</h2>
+          <p id="eventBannerDesc">Погода спокойная. Скоро что-то произойдёт.</p>
+          <div class="timer" id="eventBannerTimer">Следующее событие через --:--</div>
+        </div>
+        <h3 style="font-family:var(--font-display); font-weight:600; margin:22px 0 12px;">Все возможные события</h3>
+        <div class="eventlist" id="eventDefList"></div>
+      </section>
+
+      <!-- MULTIPLAYER -->
+      <section class="view" id="view-multiplayer">
+        <h1 class="pagetitle">Мультиплеер</h1>
+        <p class="pagesub">Создай или присоединись к комнате с друзьями, чтобы видеть, кто онлайн, и меняться семенами. Нужен вход в аккаунт.</p>
+        <div id="mpSignedOut" class="panel-card" style="display:none;">
+          <h3>Аккаунт Growdin</h3>
+          <p style="font-size:13px; color:var(--text-dim);">Войди в аккаунт или создай новый, чтобы сохранять прогресс и играть с друзьями.</p>
+          <input class="select-like" id="authEmail" type="email" placeholder="Почта" style="width:100%; margin-bottom:10px;">
+          <input class="select-like" id="authPassword" type="password" placeholder="Пароль (минимум 6 символов)" style="width:100%; margin-bottom:10px;">
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn primary" id="loginBtn">Войти</button>
+            <button class="btn" id="registerBtn">Регистрация</button>
+          </div>
+          <p id="authMessage" style="font-size:12px; color:var(--text-dim); margin:10px 0 0;"></p>
+        </div>
+        <div id="mpNoRoom" style="display:none;">
+          <div class="upgrade-cols">
+            <div class="upgrade-card">
+              <h3>Создать комнату</h3>
+              <div class="desc">Начни новую комнату и получи код, которым можно поделиться с друзьями.</div>
+              <button class="btn primary full" id="createRoomBtn">Создать комнату</button>
+            </div>
+            <div class="upgrade-card">
+              <h3>Войти в комнату</h3>
+              <div class="desc">Введи код, которым с тобой поделились.</div>
+              <input class="select-like" id="joinRoomInput" placeholder="КОД КОМНАТЫ" style="width:100%; margin-bottom:10px; text-transform:uppercase;">
+              <button class="btn primary full" id="joinRoomBtn">Войти в комнату</button>
+            </div>
+          </div>
+        </div>
+        <div id="friendsPanel" style="display:none;">
+          <div class="panel-card" style="margin-top:18px;">
+            <h3>Друзья</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+              <input class="select-like" id="displayNameInput" placeholder="Твой ник" maxlength="20" style="flex:1;min-width:180px;">
+              <button class="btn" id="saveProfileBtn">Сохранить ник</button>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+              <input class="select-like" id="friendSearchInput" placeholder="Ник друга" maxlength="20" style="flex:1;min-width:180px;">
+              <button class="btn primary" id="sendFriendRequestBtn">Добавить</button>
+            </div>
+            <div id="friendMessage" style="font-size:12px;color:var(--text-dim);margin-bottom:12px;"></div>
+            <div class="friend-grid">
+              <div>
+                <h4 style="margin:0 0 9px;">Мои друзья</h4>
+                <div class="friend-list" id="friendsList"></div>
+              </div>
+              <div>
+                <h4 style="margin:0 0 9px;">Запросы</h4>
+                <div class="friend-list" id="friendRequestsList"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="mpInRoom" style="display:none;">
+          <div class="roomcode" id="roomCodeDisplay">——————</div>
+          <div style="display:flex; gap:10px; margin-top:10px; justify-content:center;">
+            <button class="btn small" id="copyRoomBtn">Скопировать код</button>
+            <button class="btn small danger" id="leaveRoomBtn">Покинуть комнату</button>
+          </div>
+          <div class="panel-card" style="margin-top:18px;">
+            <h3>Кто здесь</h3>
+            <div class="memberlist" id="memberList"></div>
+          </div>
+          <div class="panel-card" style="margin-top:14px;">
+            <h3>Обмен семенами</h3>
+            <div class="tradebox">
+              <div class="tradepick">
+                <select class="select-like" id="tradeToSelect"><option value="">Отправить кому…</option></select>
+                <select class="select-like" id="tradeSeedSelect"><option value="">Семя…</option></select>
+                <input class="select-like" id="tradeQtyInput" type="number" min="1" value="1" style="width:90px;">
+                <button class="btn primary" id="tradeProposeBtn">Предложить обмен</button>
+              </div>
+              <div class="tradelog" id="tradeLog"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLLECTION -->
+      <section class="view" id="view-collection">
+        <h1 class="pagetitle">Коллекция</h1>
+        <p class="pagesub">100 обычных семян, секретное Потужное Украинское Насіння, Green Elephant Seed, мутации, питомцы и мемы.</p>
+        <div class="seedgrid" id="collectionGrid"></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="view" id="view-settings">
+        <h1 class="pagetitle">Настройки</h1>
+        <div class="panel-card">
+          <div class="settingsrow">
+            <div><div class="lbl">Отображаемое имя</div><div class="sub">Видно другим в твоей комнате мультиплеера</div></div>
+            <input class="select-like" id="displayNameInput" placeholder="Садовод">
+          </div>
+          <div class="settingsrow">
+            <div><div class="lbl">Звуковые эффекты</div><div class="sub">Небольшие звуки при роллах и редких выпадениях</div></div>
+            <div class="switch on" id="soundToggle"></div>
+          </div>
+          <div class="settingsrow">
+            <div><div class="lbl">Спокойная музыка</div><div class="sub">Фоновая расслабляющая музыка. Не зависит от звуковых эффектов.</div></div>
+            <div class="switch on" id="musicToggle"></div>
+          </div>
+          <div class="settingsrow">
+            <div><div class="lbl">Уменьшить анимацию</div><div class="sub">Отключает всплывающий текст и визуальные эффекты событий</div></div>
+            <div class="switch" id="motionToggle"></div>
+          </div>
+          <div class="settingsrow">
+            <div><div class="lbl">Сбросить прогресс</div><div class="sub">Стирает деньги, инвентарь и все апгрейды. Нельзя отменить.</div></div>
+            <button class="btn danger" id="resetBtn">Сбросить</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<nav class="topnav-mobile" id="mobileNav">
+  <button class="navbtn active" data-view="home"><span class="ic">&#8962;</span>Дом</button>
+  <button class="navbtn" data-view="inventory"><span class="ic">&#127991;</span>Инв</button>
+  <button class="navbtn" data-view="roll"><span class="ic">&#127920;</span>Ролл</button>
+  <button class="navbtn" data-view="fusion"><span class="ic">&#10024;</span>Слияние</button>
+  <button class="navbtn" data-view="upgrades"><span class="ic">&#9889;</span>Апгр</button>
+  <button class="navbtn" data-view="wheels"><span class="ic">&#127922;</span>Колёса</button>
+  <button class="navbtn" data-view="minigames"><span class="ic">&#128722;</span>Магазин</button>
+  <button class="navbtn" data-view="events"><span class="ic">&#9925;</span>События</button>
+  <button class="navbtn" data-view="multiplayer"><span class="ic">&#128101;</span>МП</button>
+  <button class="navbtn" data-view="collection"><span class="ic">&#128220;</span>Колл</button>
+  <button class="navbtn" data-view="settings"><span class="ic">&#9881;</span>Наст</button>
+</nav>
+
+<div class="overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <h3 id="modalTitle">Подтвердить</h3>
+    <p id="modalBody"></p>
+    <div class="actions">
+      <button class="btn" id="modalCancel">Отмена</button>
+      <button class="btn primary" id="modalConfirm">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toastwrap" id="toastWrap"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   CONFIG
+   ========================================================= */
+const SEED_COUNT = 100;
+const SECRET_ID = 101;
+const GREEN_ELEPHANT_ID = 102;
+
+const UNIT_SUFFIXES = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc","UDc","DDc","TDc","QaDc","QiDc"];
+function formatNumber(n){
+  n = Math.max(0, n);
+  if(n < 1000) return (Math.floor(n*100)/100).toString().replace(/\.00$/,'');
+  let u = 0;
+  while(n >= 1000 && u < UNIT_SUFFIXES.length - 1){ n /= 1000; u++; }
+  const decimals = n < 10 ? 2 : n < 100 ? 1 : 0;
+  return n.toFixed(decimals) + UNIT_SUFFIXES[u];
+}
+function formatMoney(n){ return "$" + formatNumber(n); }
+
+function seedPrice(n){
+  if(n === 1) return 0;
+  // Цены заметно растут с каждым новым семенем.
+  return Math.round(9000 * Math.pow(n-1, 2.55) * Math.pow(1.28, n));
+}
+function seedClickValue(n){
+  // Базовая прибыль семени №N = $N.
+  return Math.max(1, n);
+}
+function rollCostForLevel(level){ return Math.round(300 * Math.pow(1.8, level)); }
+const MULT_MAX_LEVEL = 80;
+function multCost(level){ return Math.round(4000 * Math.pow(1.6, level)); }
+const AUTO_MAX_LEVEL = 20;
+function autoCost(level){ return Math.round(6000 * Math.pow(2.4, level)); }
+const LUCK_MAX_LEVEL = 99;
+function luckCost(level){ return Math.round(2200 * Math.pow(1.65, level)); }
+
+/* ---- Material / fusion tiers ---- */
+const MATERIAL_TIERS = [
+  {key:"normal",    label:"Обычное",     mult:1,    tint:null},
+  {key:"golden",    label:"Золотое",     mult:6,    tint:"#e9c15a"},
+  {key:"diamond",   label:"Алмазное",    mult:36,   tint:"#8fd8e8"},
+  {key:"mythic",    label:"Мифическое",  mult:220,  tint:"#c07af0"},
+  {key:"celestial", label:"Небесное",    mult:1350, tint:"#ffe9a8"},
+];
+const FUSION_COST = 4;
+
+const TIER_DEFS = [
+  {key:"common", label:"Common", color:"var(--tier-common)", max:20},
+  {key:"uncommon", label:"Uncommon", color:"var(--tier-uncommon)", max:40},
+  {key:"rare", label:"Rare", color:"var(--tier-rare)", max:60},
+  {key:"epic", label:"Epic", color:"var(--tier-epic)", max:80},
+  {key:"legendary", label:"Legendary", color:"var(--tier-legendary)", max:100},
+];
+function tierOf(n){
+  if(n === SECRET_ID || n === GREEN_ELEPHANT_ID) return {key:"secret", label:"Secret", color:"var(--tier-secret)"};
+  for(const t of TIER_DEFS) if(n <= t.max) return t;
+  return TIER_DEFS[TIER_DEFS.length-1];
+}
+
+const NAME_PREFIX = ["Sun","Moss","Dew","Ember","Frost","Thorn","Amber","Willow","Cinder","Marsh","Glim","Vine","Root","Peat","Clover","Husk","Bramble","Petal","Ash","Hollow","Fern","Coral","Silt","Loam","Nectar","Gale","Moor","Rime","Sable","Bloom"];
+const NAME_SUFFIX = ["seed","pod","husk","kernel","bulb","spore","bud","nut","cone","grain","node","pip","cap","sprout","drop"];
+const SPECIAL_SEED_NAMES = {
+  3:"Strawberry Seed", 7:"Sunflower Seed", 12:"Pumpkin Seed", 18:"Blueberry Seed",
+  24:"Lavender Seed", 31:"Mango Seed", 38:"Watermelon Seed", 45:"Lotus Seed",
+  52:"Crystal Seed", 60:"Moonflower Seed", 68:"Cactus Seed", 75:"Cherry Seed",
+  82:"Starfruit Seed", 90:"Dragonfruit Seed", 96:"Rainbow Seed"
+};
+function seedName(n){
+  if(n === SECRET_ID) return "Потужне Українське Насіння";
+  if(n === GREEN_ELEPHANT_ID) return "Green Elephant Seed";
+  if(SPECIAL_SEED_NAMES[n]) return SPECIAL_SEED_NAMES[n];
+  const p = NAME_PREFIX[(n*7) % NAME_PREFIX.length];
+  const s = NAME_SUFFIX[(n*13) % NAME_SUFFIX.length];
+  return p + s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Palette + SVG icon: each seed renders as a small faceted "seed gem" rather than an emoji.
+const SEED_PALETTE = [
+  {top:"#163f22", bottom:"#4fae54"}, // green
+  {top:"#3b1e0c", bottom:"#c9812f"}, // rust / brown-orange
+  {top:"#4a0f0f", bottom:"#c23b2c"}, // red
+  {top:"#241454", bottom:"#6a49e0"}, // purple
+  {top:"#0b3b3b", bottom:"#2fb3a8"}, // teal
+  {top:"#4a3208", bottom:"#e0ac3f"}, // gold
+  {top:"#430f36", bottom:"#cf4a9a"}, // magenta
+  {top:"#0d2a52", bottom:"#4587d6"}, // blue
+  {top:"#333610", bottom:"#9aa83a"}, // olive
+  {top:"#262b33", bottom:"#7c8794"}, // slate
+  {top:"#3a0c1c", bottom:"#a3355c"}, // maroon
+  {top:"#2a0f4a", bottom:"#8a52d9"}, // violet
+  {top:"#0f3320", bottom:"#3f9a5c"}, // forest
+  {top:"#402606", bottom:"#d98a2c"}, // amber
+];
+function seedColorFor(n){
+  if(n === SECRET_ID) return {top:"#0057b7", bottom:"#ffd700"};
+  if(n === GREEN_ELEPHANT_ID) return {top:"#0b5d28", bottom:"#58d66f"};
+  return SEED_PALETTE[(n-1) % SEED_PALETTE.length];
+}
+let iconUid = 0;
+function seedIconSVG(n, size, tier){
+  size = size || 64;
+  tier = tier || 0;
+  const c = seedColorFor(n);
+  const gid = "sg" + (iconUid++);
+  const secret = n === SECRET_ID || n === GREEN_ELEPHANT_ID;
+  const tierDef = MATERIAL_TIERS[tier] || MATERIAL_TIERS[0];
+  const strokeColor = tierDef.tint ? tierDef.tint : "rgba(0,0,0,.35)";
+  const strokeWidth = tierDef.tint ? 4 : 2;
+  return (
+    '<svg viewBox="0 0 100 128" width="'+size+'" height="'+Math.round(size*1.28)+'" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="'+c.top+'"/>' +
+        '<stop offset="100%" stop-color="'+c.bottom+'"/>' +
+      '</linearGradient></defs>' +
+      '<path d="M50 4 C66 4 82 16 82 38 L82 68 C82 96 66 118 50 124 C34 118 18 96 18 68 L18 38 C18 16 34 4 50 4 Z" ' +
+        'fill="url(#'+gid+')" stroke="'+strokeColor+'" stroke-width="'+strokeWidth+'"/>' +
+      '<path d="M30 16 C24 24 22 34 22 36 L33 30 C33 26 33 20 30 16 Z" fill="#ffffff" opacity="0.22"/>' +
+      '<path d="M50 10 L50 118" stroke="#000000" stroke-opacity="0.12" stroke-width="2"/>' +
+      '<path d="M36 20 C36 50 36 90 46 118" stroke="#ffffff" stroke-opacity="0.10" stroke-width="1.5" fill="none"/>' +
+      (secret ? '<circle cx="66" cy="24" r="3" fill="#fff7d6"><animate attributeName="opacity" values="0.2;1;0.2" dur="1.8s" repeatCount="indefinite"/></circle>' +
+                '<circle cx="30" cy="50" r="2" fill="#fff7d6"><animate attributeName="opacity" values="1;0.2;1" dur="2.3s" repeatCount="indefinite"/></circle>' : '') +
+    '</svg>'
+  );
+}
+
+const SEEDS = {};
+for(let n=1;n<=SEED_COUNT;n++){
+  SEEDS[n] = { id:n, name:seedName(n), tier:tierOf(n), price:seedPrice(n), click:seedClickValue(n) };
+}
+SEEDS[SECRET_ID] = { id:SECRET_ID, name:seedName(SECRET_ID), tier:tierOf(SECRET_ID), price:seedPrice(SEED_COUNT)*100, click:100000 };
+SEEDS[GREEN_ELEPHANT_ID] = { id:GREEN_ELEPHANT_ID, name:seedName(GREEN_ELEPHANT_ID), tier:tierOf(GREEN_ELEPHANT_ID), price:seedPrice(SEED_COUNT)*150, click:250000 };
+
+// Roll luck level L -> pool is exactly seeds [L, L+1] (clamped to SEED_COUNT).
+function luckRange(level){
+  level = Math.max(1, Math.min(LUCK_MAX_LEVEL, level));
+  return [level, Math.min(SEED_COUNT, level+1)];
+}
+// Weighted pick within a 2-seed pool: the weaker (lower) seed is common (75%), the stronger one rare (25%).
+function pairWeights(min, max, favorLow){
+  const shift = Math.min(0.24, (state.rareChanceLevel||0)*0.01);
+  favorLow = (typeof favorLow === "number") ? Math.max(0.51, favorLow-shift) : Math.max(0.51, 0.75-shift);
+  if(min === max) return [{id:min, p:1}];
+  return [{id:min, p:favorLow}, {id:max, p:1-favorLow}];
+}
+function weightedPick(weighted, rng){
+  const r = (rng ? rng() : Math.random());
+  let acc = 0;
+  for(const w of weighted){ acc += w.p; if(r <= acc) return w.id; }
+  return weighted[weighted.length-1].id;
+}
+
+/* ---- Events ---- */
+const EVENT_CYCLE_MS = 40 * 60 * 1000;
+const EVENT_DURATION_MS = 2 * 60 * 1000;
+function mulberry32(seed){
+  let t = seed >>> 0;
+  return function(){
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i))>>>0; } return h; }
+
+const EVENT_DEFS = [
+  { key:"rain", name:"Дождь", icon:"\u{1F327}\uFE0F", mult:2,
+    desc:"Несколько случайных семян получают временный буст ×2 к доходу.",
+    pick(rng, unlockedMax){
+      const poolMax = Math.max(2, unlockedMax);
+      const count = 3 + Math.floor(rng()*3);
+      const set = new Set();
+      let guard=0;
+      while(set.size < Math.min(count, poolMax) && guard++ < 200) set.add(1 + Math.floor(rng()*poolMax));
+      return [...set];
+    } },
+  { key:"sun", name:"Золотое солнце", icon:"\u{2600}\uFE0F", mult:3,
+    desc:"Редкие семена вспыхивают временным бустом ×3.",
+    pick(rng, unlockedMax){
+      const rareStart = Math.max(1, Math.floor(unlockedMax*0.66));
+      const poolMax = Math.max(rareStart+1, unlockedMax);
+      const count = 2 + Math.floor(rng()*3);
+      const set = new Set();
+      let guard=0;
+      while(set.size < Math.min(count, Math.max(1,poolMax-rareStart+1)) && guard++ < 200) set.add(rareStart + Math.floor(rng()*(poolMax-rareStart+1)));
+      return [...set];
+    } },
+  { key:"soil", name:"Плодородная почва", icon:"\u{1F33E}", mult:1.5,
+    desc:"Несколько семян среднего уровня становятся ценнее, а шансы ролла временно смещаются в пользу более сильных.",
+    rollBoost:true,
+    pick(rng, unlockedMax){
+      const mid = Math.max(1, Math.floor(unlockedMax*0.4));
+      const poolMax = Math.max(mid+1, unlockedMax);
+      const count = 2 + Math.floor(rng()*3);
+      const set = new Set();
+      let guard=0;
+      while(set.size < Math.min(count, Math.max(1,poolMax-mid+1)) && guard++ < 200) set.add(mid + Math.floor(rng()*(poolMax-mid+1)));
+      return [...set];
+    } },
+  { key:"wind", name:"Удачный ветер", icon:"\u{1F32C}\uFE0F", mult:1, luckBoost:3,
+    desc:"Твой эффективный уровень удачи временно повышается на 3.",
+    pick(){ return []; } },
+  { key:"meteor", name:"Метеоритный дождь", icon:"\u{2604}\uFE0F", mult:5,
+    desc:"Маленькая группа самых редких семян получает огромный временный буст.",
+    pick(rng, unlockedMax){
+      const start = Math.max(1, unlockedMax - 6);
+      const count = 2 + Math.floor(rng()*2);
+      const set = new Set();
+      let guard=0;
+      while(set.size < Math.min(count, Math.max(1,unlockedMax-start+1)) && guard++ < 200) set.add(start + Math.floor(rng()*(unlockedMax-start+1)));
+      return [...set];
+    } },
+  { key:"moon", name:"Лунный свет", icon:"\u{1F319}", mult:2.5,
+    desc:"Семена, тронутые ночью — каждое 7-е, — светятся временным бустом.",
+    pick(rng, unlockedMax){
+      const set = [];
+      for(let i=7;i<=unlockedMax;i+=7) set.push(i);
+      return set.length ? set : [Math.min(7, unlockedMax)];
+    } },
+  { key:"kazakh", name:"Казахский ивент", icon:"🇰🇿", mult:1,
+    desc:"Особое событие: одно семя получает постоянную мутацию «Казах» ×2. Мутации складываются.",
+    permanentMutation:{label:"Казах",mult:2}, mutationChance:1,
+    pick(rng, unlockedMax){ return [1 + Math.floor(rng()*Math.max(1, unlockedMax))]; } },
+  { key:"meteorMutation", name:"Мутационный метеорит", icon:"☄️", mult:5,
+    desc:"Редкое событие: есть небольшой шанс навсегда дать одному семени мутацию «Метеор» ×3.",
+    permanentMutation:{label:"Метеор",mult:3}, mutationChance:0.25,
+    pick(rng, unlockedMax){ return [Math.max(1, unlockedMax-5+Math.floor(rng()*6))]; } },
+];
+
+function getCurrentEventInfo(unlockedMax){
+  const now = Date.now();
+  const cycleIndex = Math.floor(now / EVENT_CYCLE_MS);
+  const cycleStart = cycleIndex * EVENT_CYCLE_MS;
+  const eventStart = cycleStart + (EVENT_CYCLE_MS - EVENT_DURATION_MS);
+  const eventEnd = cycleStart + EVENT_CYCLE_MS;
+  const active = now >= eventStart && now < eventEnd;
+  const rng = mulberry32(hashStr("seedbound-ev-" + cycleIndex));
+  const def = EVENT_DEFS[Math.floor(rng()*EVENT_DEFS.length)];
+  const targets = def.pick(rng, Math.max(2, unlockedMax));
+  return {
+    active, def, targets,
+    msRemaining: active ? (eventEnd - now) : (eventStart - now < 0 ? (eventStart + EVENT_CYCLE_MS - now) : (eventStart - now)),
+    nextCycleIndex: cycleIndex
+  };
+}
+
+/* ---- Permanent event mutations ---- */
+function ensureMutationState(){
+  if(!state.mutations || typeof state.mutations !== "object") state.mutations = {};
+  if(!state.mutationEvents || typeof state.mutationEvents !== "object") state.mutationEvents = {};
+}
+function mutationMultiplierForSeed(id){
+  ensureMutationState();
+  return (state.mutations[String(id)] || []).reduce((m,x)=>m*(Number(x.mult)||1),1);
+}
+function mutationLabelsForSeed(id){
+  ensureMutationState();
+  return state.mutations[String(id)] || [];
+}
+function applyEventMutation(info){
+  if(!info.active || !info.def.permanentMutation) return;
+  ensureMutationState();
+  const claimKey = info.nextCycleIndex + ":" + info.def.key;
+  if(state.mutationEvents[claimKey]) return;
+  state.mutationEvents[claimKey] = true;
+  const chance = typeof info.def.mutationChance === "number" ? info.def.mutationChance : 1;
+  const rng = mulberry32(hashStr("mutation-"+claimKey));
+  if(rng() > chance){ scheduleSave(); return; }
+  const target = info.targets[Math.floor(rng()*info.targets.length)];
+  if(!target || !SEEDS[target]) return;
+  if(!state.mutations[String(target)]) state.mutations[String(target)] = [];
+  state.mutations[String(target)].push({label:info.def.permanentMutation.label, mult:info.def.permanentMutation.mult});
+  scheduleSave();
+  toast(SEEDS[target].name+" получила постоянную мутацию «"+info.def.permanentMutation.label+"» ×"+info.def.permanentMutation.mult+"!");
+}
+
+/* ---- Fertilizer (every 60 min) ---- */
+const FERTILIZER_CYCLE_MS = 60 * 60 * 1000;
+function fertilizerCycleIndex(){ return Math.floor(Date.now() / FERTILIZER_CYCLE_MS); }
+function fertilizerAvailable(){
+  const idx = fertilizerCycleIndex();
+  return idx > (typeof state.fertilizerCollectedCycle === "number" ? state.fertilizerCollectedCycle : -1);
+}
+
+/* ---- Admin abuse (random once a day) ---- */
+function adminAbuseTodayInfo(){
+  const d = new Date();
+  const dateStr = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+  const rng = mulberry32(hashStr("admin-abuse-"+dateStr));
+  const minuteOfDay = Math.floor(rng()*24*60);
+  const nowMinute = d.getHours()*60 + d.getMinutes();
+  const available = nowMinute >= minuteOfDay && state.adminAbuseClaimedDate !== dateStr;
+  return {available, dateStr, minuteOfDay};
+}
+
+/* ---- Minigames ---- */
+const MINIGAMES = [
+  {key:"coinflip", name:"Монетка", icon:"\u{1FA99}", desc:"Орёл или решка? Угадай — получи x1.3 к семенам на 1 минуту.", cooldownMs:8*60*1000, labels:["Орёл","Решка"]},
+  {key:"roulette", name:"Рулетка", icon:"\u{1F3A1}", desc:"Красное или чёрное? 50/50 шанс на x1.3 на 1 минуту.", cooldownMs:8*60*1000, labels:["Красное","Чёрное"]},
+  {key:"dice", name:"Кости", icon:"\u{1F3B2}", desc:"Кость выпадет больше или меньше 3.5?", cooldownMs:8*60*1000, labels:["Меньше","Больше"]},
+  {key:"cards", name:"Карта", icon:"\u{1F0CF}", desc:"Следующая карта будет чётной или нечётной?", cooldownMs:8*60*1000, labels:["Чётная","Нечётная"]},
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+function KEY(id, tier){ return id + "_" + (tier||0); }
+function parseKey(k){ const p = k.split("_"); return {id: parseInt(p[0],10), tier: parseInt(p[1]||"0",10)}; }
+
+const DEFAULT_STATE = {
+  version: 2,
+  money: 0,
+  activeSeedId: 1,
+  activeTier: 0,
+  inventory: {"1_0":1},
+  discovered: [1],
+  luckLevel: 1,
+  multiplierLevel: 0,
+  autoclickerLevel: 0,
+  totalClicks: 0,
+  totalRolls: 0,
+  secretObtained: false,
+  greenElephantObtained: false,
+  displayName: "",
+  soundOn: true,
+  musicOn: true,
+  reduceMotion: false,
+  rareChanceLevel: 0,
+  pets: {},
+  memes: {},
+  equippedPet: null,
+  roomCode: null,
+  buffs: [],
+  minigameCooldowns: {},
+  fertilizerCollectedCycle: -1,
+  adminAbuseClaimedDate: null,
+  mutations: {},
+  mutationEvents: {},
+  createdAt: Date.now(),
+};
+let state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+function currentMultiplier(){
+  let m = 1 + state.multiplierLevel * 0.1;
+  if(state.pets && state.equippedPet && PETS && PETS[state.equippedPet]) m *= (PETS[state.equippedPet].moneyMult || 1);
+  if(state.memes) Object.keys(state.memes).forEach(k=>{ if(state.memes[k] && MEMES[k]) m *= (MEMES[k].moneyMult || 1); });
+  return m;
+}
+function currentAutoCooldown(){
+  if(state.autoclickerLevel <= 0) return null;
+  return Math.max(1, 16 - state.autoclickerLevel);
+}
+function ownedCount(id, tier){
+  tier = tier || 0;
+  return state.inventory[KEY(id,tier)] || 0;
+}
+function addInv(id, tier, qty){
+  const k = KEY(id, tier||0);
+  state.inventory[k] = (state.inventory[k]||0) + qty;
+}
+function removeInv(id, tier, qty){
+  const k = KEY(id, tier||0);
+  state.inventory[k] = Math.max(0, (state.inventory[k]||0) - qty);
+}
+function totalOwnedAllTiers(id){
+  let s = 0;
+  for(let t=0;t<MATERIAL_TIERS.length;t++) s += ownedCount(id,t);
+  return s;
+}
+function activeBuffMultiplier(){
+  const now = Date.now();
+  if(!state.buffs) state.buffs = [];
+  const before = state.buffs.length;
+  state.buffs = state.buffs.filter(b => b.until > now);
+  if(state.buffs.length !== before) scheduleSave();
+  let m = 1;
+  state.buffs.forEach(b => { m *= b.mult; });
+  return m;
+}
+function addBuff(label, mult, durMs){
+  if(!state.buffs) state.buffs = [];
+  state.buffs.push({ id:"b"+Date.now()+Math.random().toString(36).slice(2,6), label, mult, until: Date.now()+durMs });
+  scheduleSave();
+}
+function activeClickValue(){
+  const seed = SEEDS[state.activeSeedId] || SEEDS[1];
+  const tierDef = MATERIAL_TIERS[state.activeTier||0] || MATERIAL_TIERS[0];
+  const base = seed.click * tierDef.mult;
+  const evInfo = getCurrentEventInfo(luckRange(state.luckLevel)[1]);
+  let evBuff = 1;
+  if(evInfo.active && evInfo.def.mult && evInfo.targets.includes(state.activeSeedId)){
+    evBuff = evInfo.def.mult;
+  }
+  const buffMult = activeBuffMultiplier();
+  const mutationMult = mutationMultiplierForSeed(state.activeSeedId);
+  return Math.max(1, Math.round(base * currentMultiplier() * evBuff * buffMult * mutationMult));
+}
+function allNormalSeedsOwned(){
+  for(let i=1;i<=SEED_COUNT;i++) if(totalOwnedAllTiers(i) === 0) return false;
+  return true;
+}
+function allUpgradesMaxed(){
+  return state.multiplierLevel >= MULT_MAX_LEVEL && state.autoclickerLevel >= AUTO_MAX_LEVEL && state.luckLevel >= LUCK_MAX_LEVEL;
+}
+function secretEligible(){ return allNormalSeedsOwned() && allUpgradesMaxed(); }
+
+/* =========================================================
+   PERSISTENCE (db + user capabilities, localStorage fallback)
+   ========================================================= */
+let dbCap = firebaseDb, userCap = firebaseAuth;
+let myUid = null;
+let saveTimer = null;
+let capabilitiesReady = false;
+let profileUnsub = null;
+let friendsUnsubs = [];
+let requestsUnsub = null;
+let inviteUnsub = null;
+let presenceTimer = null;
+let friendsCache = {};
+let requestsCache = {};
+
+const LS_KEY = "growdin_save_v2";
+
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+function saveLocal(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+function scheduleSave(){
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 700);
+}
+async function doSave(){
+  saveLocal();
+  if(myUid){
+    try{ await firebaseDb.collection("users").doc(myUid).collection("data").doc("save").set(state); }catch(e){ console.error("Ошибка сохранения",e); }
+  }
+}
+
+function sanitizeLoadedState(loaded){
+  const merged = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), loaded);
+  // Guard against an older inventory format (plain numeric keys without "_tier").
+  const inv = merged.inventory || {};
+  const cleanInv = {};
+  let looksOld = false;
+  Object.keys(inv).forEach(k=>{
+    if(k.indexOf("_") === -1){ looksOld = true; }
+  });
+  if(looksOld){
+    Object.keys(inv).forEach(k=>{
+      const id = parseInt(k,10);
+      if(!isNaN(id) && inv[k] > 0) cleanInv[KEY(id,0)] = inv[k];
+    });
+    merged.inventory = Object.keys(cleanInv).length ? cleanInv : {"1_0":1};
+  }
+  if(!merged.buffs) merged.buffs = [];
+  if(!merged.minigameCooldowns) merged.minigameCooldowns = {};
+  if(typeof merged.fertilizerCollectedCycle !== "number") merged.fertilizerCollectedCycle = -1;
+  if(typeof merged.activeTier !== "number") merged.activeTier = 0;
+  if(!merged.mutations || typeof merged.mutations !== "object") merged.mutations = {};
+  if(!merged.mutationEvents || typeof merged.mutationEvents !== "object") merged.mutationEvents = {};
+  return merged;
+}
+
+function currentDisplayName(){
+  return (state.displayName && state.displayName.trim()) ? state.displayName.trim() : "Садовод";
+}
+
+async function ensureProfile(user){
+  const ref=firebaseDb.collection("profiles").doc(user.uid);
+  const snap=await ref.get();
+  if(!snap.exists){
+    const fallback=(user.email||"Садовод").split("@")[0].slice(0,20) || "Садовод";
+    state.displayName=fallback;
+    await ref.set({uid:user.uid,displayName:fallback,displayNameLower:fallback.toLowerCase(),emailVerified:!!user.emailVerified,lastSeen:firebase.firestore.FieldValue.serverTimestamp()});
+  }else{
+    const data=snap.data()||{};
+    state.displayName=data.displayName||currentDisplayName();
+  }
+  await ref.set({uid:user.uid,displayName:currentDisplayName(),displayNameLower:currentDisplayName().toLowerCase(),lastSeen:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  saveLocal();
+}
+
+async function updatePresence(){
+  if(!myUid) return;
+  try{
+    await firebaseDb.collection("profiles").doc(myUid).set({lastSeen:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  }catch(e){}
+}
+
+function isOnline(profile){
+  const ts=profile && profile.lastSeen;
+  if(!ts) return false;
+  const ms=typeof ts.toMillis==='function' ? ts.toMillis() : (ts.seconds?ts.seconds*1000:ts);
+  return Date.now()-ms < 70000;
+}
+
+function clearSocialListeners(){
+  if(profileUnsub){try{profileUnsub()}catch(e){} profileUnsub=null;}
+  friendsUnsubs.forEach(fn=>{try{fn()}catch(e){}}); friendsUnsubs=[];
+  if(requestsUnsub){try{requestsUnsub()}catch(e){} requestsUnsub=null;}
+  if(inviteUnsub){try{inviteUnsub()}catch(e){} inviteUnsub=null;}
+  if(presenceTimer){clearInterval(presenceTimer);presenceTimer=null;}
+  friendsCache={}; requestsCache={};
+}
+
+async function loadFriends(){
+  if(!myUid) return;
+  friendsUnsubs.forEach(fn=>{try{fn()}catch(e){}}); friendsUnsubs=[];
+  try{
+    const snap=await firebaseDb.collection("users").doc(myUid).collection("friends").get();
+    snap.forEach(d=>friendsCache[d.id]=d.data()||{});
+    const ids=snap.docs.map(d=>d.id);
+    ids.forEach(uid=>{
+      const unsub=firebaseDb.collection("profiles").doc(uid).onSnapshot(ps=>{
+        if(ps.exists) friendsCache[uid]=Object.assign({},friendsCache[uid],ps.data());
+        renderFriends();
+      });
+      friendsUnsubs.push(unsub);
+    });
+    renderFriends();
+  }catch(e){console.error("Friends load",e)}
+}
+
+function listenFriendRequests(){
+  if(!myUid) return;
+  if(requestsUnsub){try{requestsUnsub()}catch(e){}}
+  requestsUnsub=firebaseDb.collection("users").doc(myUid).collection("friendRequests").onSnapshot(snap=>{
+    requestsCache={};
+    snap.forEach(d=>requestsCache[d.id]=d.data()||{});
+    renderFriendRequests();
+  },e=>console.error("Requests",e));
+}
+
+function listenInvites(){
+  if(!myUid) return;
+  if(inviteUnsub){try{inviteUnsub()}catch(e){}}
+  inviteUnsub=firebaseDb.collection("users").doc(myUid).collection("roomInvites").where("status","==","pending").onSnapshot(snap=>{
+    snap.docChanges().forEach(change=>{
+      if(change.type!=="added" && change.type!=="modified") return;
+      const inv=change.doc.data();
+      showRoomInvite(change.doc.id,inv);
+    });
+  },e=>console.error("Invites",e));
+}
+
+function renderFriends(){
+  const el=document.getElementById("friendsList"); if(!el) return;
+  const entries=Object.entries(friendsCache);
+  if(!entries.length){el.innerHTML='<p style="color:var(--text-faint);font-size:12.5px;">Пока нет друзей.</p>';return;}
+  el.innerHTML=entries.map(([uid,f])=>{
+    const online=isOnline(f);
+    return `<div class="friend-row"><div><div class="friend-name"><span class="status-dot ${online?'online':'offline'}"></span>${escapeHtml(f.displayName||"Садовод")}</div><div class="friend-meta">${online?'В сети':'Не в сети'}</div></div>${online?`<button class="btn small primary" onclick="window.__inviteFriend('${uid}')">В комнату</button>`:''}<button class="btn small danger" onclick="window.__removeFriend('${uid}')">Удалить</button></div>`;
+  }).join("");
+}
+
+function renderFriendRequests(){
+  const el=document.getElementById("friendRequestsList"); if(!el) return;
+  const entries=Object.entries(requestsCache);
+  if(!entries.length){el.innerHTML='<p style="color:var(--text-faint);font-size:12.5px;">Нет новых запросов.</p>';return;}
+  el.innerHTML=entries.map(([uid,r])=>`<div class="friend-row"><div><div class="friend-name">${escapeHtml(r.fromName||"Садовод")}</div><div class="friend-meta">Хочет добавить тебя в друзья</div></div><span style="display:flex;gap:6px"><button class="btn small primary" onclick="window.__acceptFriend('${uid}')">Принять</button><button class="btn small" onclick="window.__declineFriend('${uid}')">Отклонить</button></span></div>`).join("");
+}
+
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+async function saveProfile(){
+  if(!myUid) return;
+  const input=document.getElementById("displayNameInput");
+  const name=(input.value||"").trim().replace(/\s+/g," ");
+  const msg=document.getElementById("friendMessage");
+  if(name.length<2){msg.textContent="Ник должен быть минимум 2 символа.";return;}
+  if(name.length>20){msg.textContent="Ник слишком длинный.";return;}
+  try{
+    const q=await firebaseDb.collection("profiles").where("displayNameLower","==",name.toLowerCase()).limit(1).get();
+    if(!q.empty && q.docs[0].id!==myUid){msg.textContent="Этот ник уже занят.";return;}
+    state.displayName=name;
+    await firebaseDb.collection("profiles").doc(myUid).set({uid:myUid,displayName:name,displayNameLower:name.toLowerCase(),lastSeen:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    await doSave();
+    msg.textContent="Ник сохранён.";
+  }catch(e){console.error(e);msg.textContent="Не удалось сохранить ник.";}
+}
+
+async function sendFriendRequest(){
+  if(!myUid) return;
+  const input=document.getElementById("friendSearchInput");
+  const name=(input.value||"").trim().toLowerCase();
+  const msg=document.getElementById("friendMessage");
+  if(!name){msg.textContent="Введи ник.";return;}
+  try{
+    const q=await firebaseDb.collection("profiles").where("displayNameLower","==",name).limit(1).get();
+    if(q.empty){msg.textContent="Игрок с таким ником не найден.";return;}
+    const target=q.docs[0];
+    if(target.id===myUid){msg.textContent="Нельзя добавить самого себя.";return;}
+    const existing=await firebaseDb.collection("users").doc(myUid).collection("friends").doc(target.id).get();
+    if(existing.exists){msg.textContent="Вы уже друзья.";return;}
+    await firebaseDb.collection("users").doc(target.id).collection("friendRequests").doc(myUid).set({fromUid:myUid,fromName:currentDisplayName(),createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    input.value="";
+    msg.textContent="Запрос отправлен.";
+  }catch(e){console.error(e);msg.textContent="Не удалось отправить запрос.";}
+}
+
+async function acceptFriend(uid){
+  if(!myUid) return;
+  try{
+    const reqRef=firebaseDb.collection("users").doc(myUid).collection("friendRequests").doc(uid);
+    const snap=await reqRef.get(); if(!snap.exists) return;
+    const r=snap.data();
+    const batch=firebaseDb.batch();
+    batch.set(firebaseDb.collection("users").doc(myUid).collection("friends").doc(uid),{uid,displayName:r.fromName||"Садовод",addedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    batch.set(firebaseDb.collection("users").doc(uid).collection("friends").doc(myUid),{uid:myUid,displayName:currentDisplayName(),addedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    batch.delete(reqRef);
+    await batch.commit();
+    toast("Теперь вы друзья.");
+    loadFriends();
+  }catch(e){console.error(e);toast("Не удалось принять запрос.");}
+}
+
+async function declineFriend(uid){
+  if(!myUid) return;
+  try{await firebaseDb.collection("users").doc(myUid).collection("friendRequests").doc(uid).delete();}catch(e){}
+}
+
+async function removeFriend(uid){
+  if(!myUid) return;
+  try{
+    const batch=firebaseDb.batch();
+    batch.delete(firebaseDb.collection("users").doc(myUid).collection("friends").doc(uid));
+    batch.delete(firebaseDb.collection("users").doc(uid).collection("friends").doc(myUid));
+    await batch.commit();
+    delete friendsCache[uid]; renderFriends();
+  }catch(e){toast("Не удалось удалить друга.");}
+}
+
+async function inviteFriend(uid){
+  if(!myUid){toast("Сначала войди в аккаунт.");return;}
+  if(!state.roomCode){toast("Сначала создай или открой комнату.");return;}
+  const friend=friendsCache[uid];
+  if(!friend || !isOnline(friend)){toast("Друг сейчас не в сети.");return;}
+  const id="i_"+myUid+"_"+Date.now();
+  try{
+    await firebaseDb.collection("users").doc(uid).collection("roomInvites").doc(id).set({fromUid:myUid,fromName:currentDisplayName(),roomCode:state.roomCode,status:"pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    toast("Приглашение отправлено.");
+  }catch(e){console.error(e);toast("Не удалось отправить приглашение.");}
+}
+
+function showRoomInvite(id,inv){
+  if(document.getElementById("roomInvite_"+id)) return;
+  const box=document.createElement("div"); box.className="invite-pop"; box.id="roomInvite_"+id;
+  box.innerHTML=`<div style="font-weight:700;margin-bottom:6px;">Приглашение в комнату</div><div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">${escapeHtml(inv.fromName||"Друг")} приглашает тебя в комнату <b>${escapeHtml(inv.roomCode||"")}</b>.</div><div style="display:flex;gap:8px;"><button class="btn small primary" id="acceptInv_${id}">Войти</button><button class="btn small" id="declineInv_${id}">Отклонить</button></div>`;
+  document.body.appendChild(box);
+  document.getElementById("acceptInv_"+id).onclick=()=>acceptRoomInvite(id,inv);
+  document.getElementById("declineInv_"+id).onclick=()=>finishRoomInvite(id,"declined");
+}
+
+async function finishRoomInvite(id,status){
+  try{await firebaseDb.collection("users").doc(myUid).collection("roomInvites").doc(id).update({status});}catch(e){}
+  document.getElementById("roomInvite_"+id)?.remove();
+}
+
+async function acceptRoomInvite(id,inv){
+  document.getElementById("roomInvite_"+id)?.remove();
+  try{
+    await joinRoom(inv.roomCode);
+    await finishRoomInvite(id,"accepted");
+  }catch(e){await finishRoomInvite(id,"declined");}
+}
+
+function startSocial(user){
+  clearSocialListeners();
+  ensureProfile(user).then(()=>{
+    const input=document.getElementById("displayNameInput");
+    if(input) input.value=currentDisplayName();
+    loadFriends(); listenFriendRequests(); listenInvites(); updatePresence();
+    presenceTimer=setInterval(updatePresence,30000);
+  });
+}
+
+window.__inviteFriend=inviteFriend;
+window.__acceptFriend=acceptFriend;
+window.__declineFriend=declineFriend;
+window.__removeFriend=removeFriend;
+
+async function initPersistence(){
+  const local = loadLocal();
+  if(local) state = sanitizeLoadedState(local);
+
+  firebaseAuth.onAuthStateChanged(async (user)=>{
+    if(user){
+      myUid = user.uid;
+      startSocial(user);
+      try{
+        const ref = firebaseDb.collection("users").doc(myUid).collection("data").doc("save");
+        const snap = await ref.get();
+        if(snap.exists){
+          state = sanitizeLoadedState(snap.data());
+        }else{
+          await ref.set(state);
+        }
+      }catch(e){
+        console.error("Ошибка загрузки сохранения", e);
+      }
+      document.getElementById("sidebarFoot").textContent = "Вход выполнен — прогресс синхронизируется с аккаунтом.";
+      document.getElementById("mpSignedOut").style.display = "none";
+      document.getElementById("friendsPanel").style.display = "";
+      document.getElementById("mpNoRoom").style.display = "";
+      capabilitiesReady = true;
+      if(state.roomCode) await rejoinRoom(state.roomCode);
+      fullRender();
+    }else{
+      clearSocialListeners();
+      myUid = null;
+      if(roomUnsub){ try{ roomUnsub(); }catch(e){} roomUnsub=null; }
+      roomState = null;
+      document.getElementById("sidebarFoot").textContent = "Войди в аккаунт, чтобы синхронизировать прогресс.";
+      document.getElementById("mpSignedOut").style.display = "";
+      document.getElementById("friendsPanel").style.display = "none";
+      document.getElementById("mpNoRoom").style.display = "none";
+      document.getElementById("mpInRoom").style.display = "none";
+      capabilitiesReady = true;
+      fullRender();
+    }
+  });
+}
+
+function authError(e){
+  const map={
+    "auth/invalid-email":"Неправильный адрес почты.",
+    "auth/user-not-found":"Аккаунт с такой почтой не найден.",
+    "auth/wrong-password":"Неправильный пароль.",
+    "auth/invalid-credential":"Неправильная почта или пароль.",
+    "auth/email-already-in-use":"Эта почта уже используется.",
+    "auth/weak-password":"Пароль должен содержать минимум 6 символов.",
+    "auth/too-many-requests":"Слишком много попыток. Попробуй позже."
+  };
+  return map[e.code] || "Не удалось выполнить действие. Попробуй ещё раз.";
+}
+
+async function registerAccount(){
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  const msg=document.getElementById("authMessage");
+  if(!email || !password){ msg.textContent="Введи почту и пароль."; return; }
+  try{
+    await firebaseAuth.createUserWithEmailAndPassword(email,password);
+    msg.textContent="Аккаунт создан. Ты вошла в игру.";
+  }catch(e){ msg.textContent=authError(e); }
+}
+
+async function loginAccount(){
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  const msg=document.getElementById("authMessage");
+  if(!email || !password){ msg.textContent="Введи почту и пароль."; return; }
+  try{
+    await firebaseAuth.signInWithEmailAndPassword(email,password);
+    msg.textContent="Вход выполнен.";
+  }catch(e){ msg.textContent=authError(e); }
+}
+
+document.getElementById("registerBtn").addEventListener("click", registerAccount);
+document.getElementById("loginBtn").addEventListener("click", loginAccount);
+
+
+/* =========================================================
+   ROOMS / MULTIPLAYER (Firebase Firestore)
+   ========================================================= */
+let roomUnsub = null;
+let roomState = null;
+
+function randomRoomCode(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out="";
+  for(let i=0;i<5;i++) out+=chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+
+async function createRoom(){
+  if(!myUid){ toast("Сначала войди в аккаунт."); return; }
+  let code=randomRoomCode();
+  for(let i=0;i<5;i++){
+    const existing=await firebaseDb.collection("rooms").doc(code).get();
+    if(!existing.exists) break;
+    code=randomRoomCode();
+  }
+  const now=Date.now();
+  const doc={code,createdAt:now,members:{[myUid]:{name:myName(),joinedAt:now}},trades:[]};
+  try{
+    await firebaseDb.collection("rooms").doc(code).set(doc);
+    state.roomCode=code;
+    scheduleSave();
+    await subscribeRoom(code);
+    toast("Комната "+code+" создана.");
+  }catch(e){ console.error(e); toast("Не получилось создать комнату."); }
+}
+
+async function joinRoom(code){
+  if(!myUid){ toast("Сначала войди в аккаунт."); return; }
+  code=(code||"").trim().toUpperCase();
+  if(!code){ toast("Введи код комнаты."); return; }
+  try{
+    const ref=firebaseDb.collection("rooms").doc(code);
+    const snap=await ref.get();
+    if(!snap.exists){ toast("Нет комнаты с таким кодом."); return; }
+    await ref.update({["members."+myUid]:{name:myName(),joinedAt:Date.now()}});
+    state.roomCode=code;
+    scheduleSave();
+    await subscribeRoom(code);
+    toast("Вход в комнату "+code+" выполнен.");
+  }catch(e){ console.error(e); toast("Не получилось войти в комнату."); }
+}
+
+async function rejoinRoom(code){
+  if(!myUid || !code) return;
+  try{
+    const ref=firebaseDb.collection("rooms").doc(code);
+    const snap=await ref.get();
+    if(!snap.exists){ state.roomCode=null; scheduleSave(); return; }
+    await ref.update({["members."+myUid]:{name:myName(),joinedAt:Date.now()}});
+    await subscribeRoom(code);
+  }catch(e){ console.error(e); }
+}
+
+async function subscribeRoom(code){
+  if(roomUnsub){ try{roomUnsub();}catch(e){} roomUnsub=null; }
+  const ref=firebaseDb.collection("rooms").doc(code);
+  roomUnsub=ref.onSnapshot((snap)=>{
+    if(snap.exists){
+      roomState=snap.data();
+      renderMultiplayer();
+      processOwnPendingTrades();
+    }else{
+      roomState=null;
+      if(state.roomCode===code){ state.roomCode=null; scheduleSave(); }
+      renderMultiplayer();
+    }
+  },(e)=>console.error("Room listener",e));
+}
+
+async function leaveRoom(){
+  const code=state.roomCode;
+  if(myUid && code){
+    try{
+      await firebaseDb.collection("rooms").doc(code).update({["members."+myUid]:firebase.firestore.FieldValue.delete()});
+    }catch(e){}
+  }
+  if(roomUnsub){try{roomUnsub();}catch(e){} roomUnsub=null;}
+  state.roomCode=null;
+  roomState=null;
+  scheduleSave();
+  renderMultiplayer();
+}
+
+function myName(){
+  return currentDisplayName();
+}
+
+async function proposeTrade(toUid,seedKey,qty){
+  if(!myUid || !state.roomCode) return;
+  const {id:seedId,tier}=parseKey(seedKey);
+  qty=Math.max(1,parseInt(qty,10)||1);
+  if(!toUid || toUid===myUid){toast("Выбери другого игрока для обмена.");return;}
+  if(ownedCount(seedId,tier)<qty){toast("У тебя не хватает таких семян.");return;}
+  const trade={id:"t"+Date.now()+"_"+Math.floor(Math.random()*9999),fromUid:myUid,fromName:myName(),toUid,toName:(roomState?.members?.[toUid]?.name)||"они",seedId,tier,qty,status:"pending",createdAt:Date.now()};
+  try{
+    const ref=firebaseDb.collection("rooms").doc(state.roomCode);
+    await firebaseDb.runTransaction(async tx=>{
+      const snap=await tx.get(ref);
+      if(!snap.exists) throw new Error("ROOM_NOT_FOUND");
+      const data=snap.data();
+      const trades=Array.isArray(data.trades)?data.trades.slice():[];
+      trades.push(trade);
+      tx.update(ref,{trades});
+    });
+    toast("Обмен предложен. Ждём подтверждения.");
+  }catch(e){console.error(e);toast("Не получилось предложить обмен.");}
+}
+
+async function updateTradeStatus(tradeId,status){
+  if(!myUid || !state.roomCode) return;
+  const ref=firebaseDb.collection("rooms").doc(state.roomCode);
+  try{
+    await firebaseDb.runTransaction(async tx=>{
+      const snap=await tx.get(ref);
+      if(!snap.exists) throw new Error("ROOM_NOT_FOUND");
+      const data=snap.data();
+      const trades=(data.trades||[]).map(t=>t.id===tradeId?Object.assign({},t,{status}):t);
+      tx.update(ref,{trades});
+    });
+  }catch(e){console.error(e);toast("Не удалось изменить обмен.");}
+}
+
+async function acceptTrade(tradeId){
+  const t=(roomState?.trades||[]).find(x=>x.id===tradeId);
+  if(!t || t.toUid!==myUid || t.status!=="pending") return;
+  await updateTradeStatus(tradeId,"accepted");
+}
+async function declineTrade(tradeId){
+  const t=(roomState?.trades||[]).find(x=>x.id===tradeId);
+  if(!t || t.toUid!==myUid || t.status!=="pending") return;
+  await updateTradeStatus(tradeId,"declined");
+}
+
+async function processOwnPendingTrades(){
+  if(!roomState || !myUid || !state.roomCode) return;
+  const trades=roomState.trades||[];
+  for(const t of trades){
+    const tier=t.tier||0;
+    if(t.status==="accepted" && t.fromUid===myUid){
+      if(ownedCount(t.seedId,tier)<t.qty){
+        await updateTradeStatus(t.id,"failed");
+      }else{
+        removeInv(t.seedId,tier,t.qty);
+        await doSave();
+        await updateTradeStatus(t.id,"sent");
+        renderHome();renderInventory();renderMultiplayer();
+      }
+    }else if(t.status==="sent" && t.toUid===myUid){
+      addInv(t.seedId,tier,t.qty);
+      if(!state.discovered.includes(t.seedId)) state.discovered.push(t.seedId);
+      await doSave();
+      await updateTradeStatus(t.id,"completed");
+      renderHome();renderInventory();renderMultiplayer();
+    }
+  }
+}
+
+/* =========================================================
+   UI HELPERS
+   ========================================================= */
+function toast(msg){
+  const wrap = document.getElementById("toastWrap");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 2600);
+}
+
+function showModal(title, body, onConfirm){
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").textContent = body;
+  const overlay = document.getElementById("modalOverlay");
+  overlay.classList.add("show");
+  const confirmBtn = document.getElementById("modalConfirm");
+  const cancelBtn = document.getElementById("modalCancel");
+  const cleanup = () => { overlay.classList.remove("show"); confirmBtn.onclick=null; cancelBtn.onclick=null; };
+  confirmBtn.onclick = () => { cleanup(); onConfirm(); };
+  cancelBtn.onclick = cleanup;
+}
+
+function switchView(name){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-"+name).classList.add("active");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active", b.dataset.view===name));
+  if(name==="roll") renderRoll();
+  if(name==="fusion") renderFusion();
+  if(name==="upgrades") renderUpgrades();
+  if(name==="minigames") renderMinigames();
+  if(name==="wheels") renderWheels();
+  if(name==="events") renderEvents();
+  if(name==="multiplayer") renderMultiplayer();
+  if(name==="collection") renderCollection();
+  if(name==="inventory") renderInventory();
+  if(name==="settings") renderSettings();
+}
+document.querySelectorAll("[data-view]").forEach(el=>{
+  el.addEventListener("click", ()=> switchView(el.dataset.view));
+});
+
+/* =========================================================
+   RENDER: HOME
+   ========================================================= */
+function renderHome(){
+  const seed = SEEDS[state.activeSeedId] || SEEDS[1];
+  const tierDef = MATERIAL_TIERS[state.activeTier||0] || MATERIAL_TIERS[0];
+  const tierSuffix = state.activeTier ? (" · "+tierDef.label) : "";
+  document.getElementById("activeSeedTitle").innerHTML = seed.name + tierSuffix + ' <span class="tiertext" style="color:'+seed.tier.color+'">'+seed.tier.label+'</span>';
+  document.getElementById("seedBtn").innerHTML = seedIconSVG(seed.id, 150, state.activeTier);
+  const cv = activeClickValue();
+  document.getElementById("ciPerClick").textContent = formatMoney(cv);
+  document.getElementById("ciTotalClicks").textContent = formatNumber(state.totalClicks);
+  document.getElementById("ciOwned").textContent = formatNumber(ownedCount(state.activeSeedId, state.activeTier));
+
+  document.getElementById("statMoney").textContent = formatMoney(state.money);
+  document.getElementById("statPerClick").textContent = formatMoney(cv);
+  document.getElementById("statMult").textContent = currentMultiplier().toFixed(1)+"x";
+  document.getElementById("statLuck").textContent = "Ур "+state.luckLevel;
+  const cd = currentAutoCooldown();
+  document.getElementById("statAuto").textContent = cd ? ("1/"+cd+"s") : "Выкл";
+
+  document.getElementById("miniDiscovered").textContent = state.discovered.filter(id=>id<=SEED_COUNT).length+" / 100";
+  document.getElementById("miniRolls").textContent = formatNumber(state.totalRolls);
+  document.getElementById("miniLuck").textContent = "Уровень "+state.luckLevel;
+  document.getElementById("miniMult").textContent = currentMultiplier().toFixed(1)+"x";
+  document.getElementById("miniAuto").textContent = cd ? ("1 клик / "+cd+"с") : "Не куплен";
+
+  const evInfo = getCurrentEventInfo(luckRange(state.luckLevel)[1]);
+  const seedBtnEl = document.getElementById("seedBtn");
+  seedBtnEl.classList.toggle("buffed", evInfo.active && evInfo.targets.includes(state.activeSeedId));
+
+  const secretPanel = document.getElementById("secretPanel");
+  secretPanel.style.display = (secretEligible() && (!state.secretObtained || !state.greenElephantObtained)) ? "" : "none";
+  const mutationWrap = document.getElementById("mutationChips");
+  if(mutationWrap){
+    const muts = mutationLabelsForSeed(state.activeSeedId);
+    mutationWrap.innerHTML = muts.length ? muts.map(m=>'<span class="buffchip">'+m.label+' ×'+m.mult+' навсегда</span>').join("") : '<span style="font-size:11px;color:var(--text-faint);">Нет постоянных мутаций</span>';
+  }
+
+  // Fertilizer button
+  const fertBtn = document.getElementById("fertilizerBtn");
+  fertBtn.style.display = fertilizerAvailable() ? "" : "none";
+
+  // Admin abuse banner
+  const abuseInfo = adminAbuseTodayInfo();
+  const abuseBanner = document.getElementById("adminAbuseBanner");
+  abuseBanner.style.display = abuseInfo.available ? "" : "none";
+
+  // Buff chips
+  activeBuffMultiplier(); // prunes expired
+  const chipsWrap = document.getElementById("buffChips");
+  chipsWrap.innerHTML = (state.buffs||[]).map(b=>{
+    const secsLeft = Math.max(0, Math.ceil((b.until-Date.now())/1000));
+    const mm = Math.floor(secsLeft/60), ss = secsLeft%60;
+    return '<span class="buffchip">'+b.label+' x'+b.mult+' — '+mm+':'+String(ss).padStart(2,"0")+'</span>';
+  }).join("");
+
+  updateEventPill(evInfo);
+}
+
+function updateEventPill(evInfo){
+  const pill = document.getElementById("eventPill");
+  const text = document.getElementById("eventPillText");
+  pill.classList.toggle("live", evInfo.active);
+  const mm = Math.floor(evInfo.msRemaining/60000), ss = Math.floor((evInfo.msRemaining%60000)/1000);
+  const clock = String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0");
+  text.textContent = evInfo.active ? (evInfo.def.name+" активно — осталось "+clock) : ("Нет события — через "+clock);
+}
+
+function clickSeed(fromAuto){
+  const gain = activeClickValue();
+  state.money += gain;
+  state.totalClicks += 1;
+  scheduleSave();
+  renderHome();
+  if(!state.reduceMotion){
+    spawnFloatText(gain, fromAuto);
+    pulseSeedBtn();
+  }
+}
+function pulseSeedBtn(){
+  const btn = document.getElementById("seedBtn");
+  btn.style.transform = "scale(.94)";
+  setTimeout(()=>{ btn.style.transform = ""; }, 90);
+}
+function spawnFloatText(gain, fromAuto){
+  const wrap = document.getElementById("clickerCard");
+  const el = document.createElement("div");
+  el.className = "float-plus";
+  el.textContent = "+"+formatMoney(gain);
+  const x = 40 + Math.random()*20;
+  el.style.left = x+"%";
+  el.style.top = (fromAuto ? "20%" : "48%");
+  el.style.color = fromAuto ? "var(--leaf)" : "var(--gold-soft)";
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 1000);
+}
+document.getElementById("seedBtn").addEventListener("click", ()=>clickSeed(false));
+document.getElementById("fertilizerBtn").addEventListener("click", ()=>{
+  if(!fertilizerAvailable()) return;
+  state.fertilizerCollectedCycle = fertilizerCycleIndex();
+  addBuff("Удобрение", 1.8, 2*60*1000);
+  scheduleSave();
+  renderHome();
+  toast("Удобрение собрано! x1.8 к доходу на 2 минуты.");
+});
+document.getElementById("adminAbuseBanner").addEventListener("click", ()=>{
+  const info = adminAbuseTodayInfo();
+  if(!info.available) return;
+  state.money += 2000;
+  addBuff("Админ абьюз", 1.5, 5*60*1000);
+  state.adminAbuseClaimedDate = info.dateStr;
+  scheduleSave();
+  renderHome();
+  toast("Админ абьюз активирован! +$2000 и x1.5 на 5 минут.");
+});
+
+/* =========================================================
+   RENDER: INVENTORY
+   ========================================================= */
+function renderInventory(){
+  const grid = document.getElementById("inventoryGrid");
+  grid.innerHTML = "";
+  const keys = Object.keys(state.inventory).filter(k => (state.inventory[k]||0) > 0);
+  if(keys.length===0){
+    grid.innerHTML = '<p style="color:var(--text-faint);">Пока ничего нет — иди крути ролл за первым семечком.</p>';
+    return;
+  }
+  keys.sort((a,b)=>{
+    const A = parseKey(a), B = parseKey(b);
+    return A.id - B.id || A.tier - B.tier;
+  });
+  keys.forEach(k=>{
+    const {id, tier} = parseKey(k);
+    const s = SEEDS[id];
+    if(!s) return;
+    const tierDef = MATERIAL_TIERS[tier] || MATERIAL_TIERS[0];
+    const isActive = id===state.activeSeedId && tier===(state.activeTier||0);
+    const card = document.createElement("div");
+    card.className = "seedcard" + (isActive ? " active-pick" : "");
+    card.innerHTML = `
+      <div class="cnt">×${formatNumber(ownedCount(id,tier))}</div>
+      <div class="emo">${seedIconSVG(id, 44, tier)}</div>
+      <div class="nm">${s.name}${tier ? (' <span style="color:'+tierDef.tint+';font-size:10.5px;">'+tierDef.label+'</span>') : ''}</div>
+      <div class="cv">${formatMoney(s.click*tierDef.mult)}/клик</div>
+      <div class="tierbar" style="background:${s.tier.color}"></div>
+    `;
+    card.addEventListener("click", ()=>{
+      state.activeSeedId = id;
+      state.activeTier = tier;
+      scheduleSave();
+      renderInventory(); renderHome();
+      toast(s.name+(tier?(" ("+tierDef.label+")"):"")+" теперь активное семя.");
+    });
+    grid.appendChild(card);
+  });
+}
+
+/* =========================================================
+   RENDER: ROLL
+   ========================================================= */
+let rolling = false;
+function renderRoll(){
+  const [min,max] = luckRange(state.luckLevel);
+  document.getElementById("rollRangeNote").textContent = "Уровень удачи "+state.luckLevel+" — сейчас доступны семена #"+min+(max>min ? (" и #"+max) : "")+".";
+  document.getElementById("rollCostLabel").textContent = formatMoney(rollCostForLevel(state.luckLevel));
+  document.getElementById("rollBtn").disabled = state.money < rollCostForLevel(state.luckLevel);
+
+  const track = document.getElementById("reelTrack");
+  track.innerHTML = "";
+  const tileSeq = [];
+  // Длинная лента, чтобы при вращении никогда не заканчивались картинки.
+  for(let i=0;i<70;i++){ tileSeq.push(min); if(max>min) tileSeq.push(max); }
+  tileSeq.forEach(id=>{
+    const it = document.createElement("div");
+    it.className = "reel-item";
+    it.innerHTML = seedIconSVG(id, 40, 0);
+    track.appendChild(it);
+  });
+  document.getElementById("reelResult").style.display = "none";
+
+  const oddsWrap = document.getElementById("oddsList");
+  const weighted = pairWeights(min, max);
+  oddsWrap.innerHTML = weighted.map(w => {
+    const s = SEEDS[w.id];
+    return `<div class="mini-row"><span style="display:flex;align-items:center;gap:6px;">${seedIconSVG(w.id,18,0)} ${s.name} <span style="color:${s.tier.color};font-size:11px;">(${s.tier.label})</span></span><b>${(w.p*100).toFixed(0)}%</b></div>`;
+  }).join("");
+}
+
+function doRoll(){
+  if(rolling) return;
+  const cost = rollCostForLevel(state.luckLevel);
+  if(state.money < cost){ toast("Не хватает денег на ролл."); return; }
+  state.money -= cost;
+  rolling = true;
+
+  let [min,max] = luckRange(state.luckLevel);
+  const evInfo = getCurrentEventInfo(max);
+  let effLevel = state.luckLevel;
+  if(evInfo.active && evInfo.def.luckBoost){ effLevel = Math.min(LUCK_MAX_LEVEL, state.luckLevel + evInfo.def.luckBoost); [min,max] = luckRange(effLevel); }
+  const favorLow = (evInfo.active && evInfo.def.rollBoost) ? 0.5 : 0.75;
+  const weighted = pairWeights(min, max, favorLow);
+  const resultId = weightedPick(weighted);
+
+  const track = document.getElementById("reelTrack");
+  const resultBox = document.getElementById("reelResult");
+  resultBox.style.display = "none";
+  track.style.transition = "none";
+  track.style.transform = "translateX(0)";
+  void track.offsetWidth;
+  const spinDist = 2600 + Math.random()*900;
+  track.style.transition = "transform 1.1s cubic-bezier(.15,.75,.3,1)";
+  track.style.transform = "translateX(-"+spinDist+"px)";
+
+  setTimeout(()=>{
+    const wasNew = !state.discovered.includes(resultId);
+    addInv(resultId, 0, 1);
+    if(wasNew) state.discovered.push(resultId);
+    state.totalRolls += 1;
+    scheduleSave();
+
+    const s = SEEDS[resultId];
+    if(typeof window.__tryRollMutation === "function") window.__tryRollMutation(resultId, evInfo);
+    document.getElementById("reelResultEmoji").innerHTML = seedIconSVG(resultId, 56, 0);
+    document.getElementById("reelResultName").textContent = s.name;
+    document.getElementById("reelResultSub").textContent = s.tier.label+" — "+formatMoney(s.click)+"/клик";
+    resultBox.classList.toggle("new", wasNew);
+    resultBox.style.display = "flex";
+
+    renderRoll();
+    renderHome();
+    rolling = false;
+    if(wasNew) toast("Новое семя открыто: "+s.name+"!");
+  }, 1150);
+}
+document.getElementById("rollBtn").addEventListener("click", doRoll);
+
+document.getElementById("secretRollBtn").addEventListener("click",()=>{
+  showModal("Открыть секретные семена", "Это стоит огромную сумму и открывает оба секретных семени. Продолжить?", ()=>{
+    const cost = rollCostForLevel(LUCK_MAX_LEVEL) * 10;
+    if(state.money < cost){ toast("Нужно "+formatMoney(cost)+" для ритуала."); return; }
+    state.money -= cost;
+    addInv(SECRET_ID, 0, 1);
+    addInv(GREEN_ELEPHANT_ID, 0, 1);
+    if(!state.discovered.includes(SECRET_ID)) state.discovered.push(SECRET_ID);
+    if(!state.discovered.includes(GREEN_ELEPHANT_ID)) state.discovered.push(GREEN_ELEPHANT_ID);
+    state.secretObtained = true;
+    state.greenElephantObtained = true;
+    scheduleSave();
+    renderHome(); renderInventory(); renderCollection();
+    toast("Секретные семена открыты!");
+  });
+});
+
+/* =========================================================
+   RENDER: FUSION
+   ========================================================= */
+function renderFusion(){
+  const wrap = document.getElementById("fusionGrid");
+  const ids = state.discovered.filter(id=>id!==SECRET_ID && id!==GREEN_ELEPHANT_ID).sort((a,b)=>a-b);
+  if(!ids.length){
+    wrap.innerHTML = '<p style="color:var(--text-faint);">Сначала найди семена через ролл.</p>';
+    return;
+  }
+  wrap.innerHTML = ids.map(id=>{
+    const s = SEEDS[id];
+    let tiersHtml = "";
+    for(let t=0;t<MATERIAL_TIERS.length;t++){
+      const cnt = ownedCount(id,t);
+      const tierDef = MATERIAL_TIERS[t];
+      tiersHtml += `<div class="fusion-tier" style="${tierDef.tint ? ('border-color:'+tierDef.tint+';') : ''}">
+        <div>${seedIconSVG(id,32,t)}</div>
+        <div style="font-size:10.5px;color:var(--text-faint);">${tierDef.label}</div>
+        <div style="font-weight:700;">${formatNumber(cnt)}</div>
+      </div>`;
+      if(t<MATERIAL_TIERS.length-1) tiersHtml += '<div class="fusion-arrow">&#8594;</div>';
+    }
+    let btnRow = "";
+    for(let t=0;t<MATERIAL_TIERS.length-1;t++){
+      const cnt = ownedCount(id,t);
+      btnRow += `<button class="btn small" ${cnt<FUSION_COST?"disabled":""} onclick="window.__fuse(${id},${t})">${FUSION_COST}× ${MATERIAL_TIERS[t].label} &#8594; ${MATERIAL_TIERS[t+1].label}</button>`;
+    }
+    return `<div class="fusion-row">
+      <div style="display:flex;align-items:center;gap:10px;font-weight:600;margin-bottom:10px;">${seedIconSVG(id,26,0)} ${s.name}</div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${tiersHtml}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">${btnRow}</div>
+    </div>`;
+  }).join("");
+}
+function fuseSeed(id, tier){
+  const cnt = ownedCount(id, tier);
+  if(cnt < FUSION_COST) return;
+  if(tier >= MATERIAL_TIERS.length - 1) return;
+  removeInv(id, tier, FUSION_COST);
+  addInv(id, tier+1, 1);
+  scheduleSave();
+  renderFusion(); renderInventory(); renderHome();
+  toast("Слияние выполнено: "+MATERIAL_TIERS[tier+1].label+" "+SEEDS[id].name+"!");
+}
+window.__fuse = (id,t)=>fuseSeed(id,t);
+
+/* =========================================================
+   RENDER: UPGRADES
+   ========================================================= */
+function renderUpgrades(){
+  document.getElementById("multLevel").textContent = state.multiplierLevel;
+  document.getElementById("multCurrent").textContent = currentMultiplier().toFixed(1)+"x";
+  document.getElementById("multProgress").style.width = (state.multiplierLevel/MULT_MAX_LEVEL*100)+"%";
+  const multMaxed = state.multiplierLevel >= MULT_MAX_LEVEL;
+  document.getElementById("multNextCost").textContent = multMaxed ? "Максимум" : formatMoney(multCost(state.multiplierLevel+1));
+  document.getElementById("buyMult").disabled = multMaxed || state.money < multCost(state.multiplierLevel+1);
+  document.getElementById("buyMult").textContent = multMaxed ? "Максимум" : "Купить";
+
+  const cd = currentAutoCooldown();
+  document.getElementById("autoLevel").textContent = state.autoclickerLevel;
+  document.getElementById("autoCurrent").textContent = cd ? ("1 клик / "+cd+"с") : "не куплен";
+  document.getElementById("autoProgress").style.width = (state.autoclickerLevel/AUTO_MAX_LEVEL*100)+"%";
+  const autoMaxed = state.autoclickerLevel >= AUTO_MAX_LEVEL;
+  document.getElementById("autoNextCost").textContent = autoMaxed ? "Максимум" : formatMoney(autoCost(state.autoclickerLevel+1));
+  document.getElementById("buyAuto").disabled = autoMaxed || state.money < autoCost(state.autoclickerLevel+1);
+  document.getElementById("buyAuto").textContent = autoMaxed ? "Максимум" : "Купить";
+
+  const [min,max] = luckRange(state.luckLevel);
+  document.getElementById("luckLevel").textContent = state.luckLevel;
+  document.getElementById("luckPoolLabel").textContent = "#"+min+(max>min?("–#"+max):"");
+  document.getElementById("luckProgress").style.width = (state.luckLevel/LUCK_MAX_LEVEL*100)+"%";
+  const luckMaxed = state.luckLevel >= LUCK_MAX_LEVEL;
+  document.getElementById("luckNextCost").textContent = luckMaxed ? "Максимум" : formatMoney(luckCost(state.luckLevel+1));
+  document.getElementById("buyLuck").disabled = luckMaxed || state.money < luckCost(state.luckLevel+1);
+  document.getElementById("buyLuck").textContent = luckMaxed ? "Максимум" : "Купить";
+}
+document.getElementById("buyMult").addEventListener("click", ()=>{
+  const cost = multCost(state.multiplierLevel+1);
+  if(state.multiplierLevel>=MULT_MAX_LEVEL || state.money<cost) return;
+  state.money -= cost; state.multiplierLevel += 1;
+  scheduleSave(); renderUpgrades(); renderHome();
+});
+document.getElementById("buyAuto").addEventListener("click", ()=>{
+  const cost = autoCost(state.autoclickerLevel+1);
+  if(state.autoclickerLevel>=AUTO_MAX_LEVEL || state.money<cost) return;
+  state.money -= cost; state.autoclickerLevel += 1;
+  scheduleSave(); renderUpgrades(); renderHome();
+});
+document.getElementById("buyLuck").addEventListener("click", ()=>{
+  const cost = luckCost(state.luckLevel+1);
+  if(state.luckLevel>=LUCK_MAX_LEVEL || state.money<cost) return;
+  state.money -= cost; state.luckLevel += 1;
+  scheduleSave(); renderUpgrades(); renderHome(); renderRoll();
+});
+
+/* =========================================================
+   RENDER: MINIGAMES
+   ========================================================= */
+function playMinigame(gameKey, choice){
+  const game = MINIGAMES.find(g=>g.key===gameKey);
+  if(!game) return;
+  if(!state.minigameCooldowns) state.minigameCooldowns = {};
+  const cdUntil = state.minigameCooldowns[gameKey] || 0;
+  if(Date.now() < cdUntil) return;
+  const outcome = Math.random() < 0.5 ? 0 : 1;
+  state.minigameCooldowns[gameKey] = Date.now() + game.cooldownMs;
+  const win = choice === outcome;
+  if(win){ addBuff(game.name, 1.3, 1*60*1000); }
+  scheduleSave();
+  toast((win ? "Победа! " : "Мимо. ") + "Выпало: "+game.labels[outcome] + (win ? " — x1.3 к семенам на 1 минуту!" : "."));
+  renderMinigames();
+  renderHome();
+}
+window.__playMg = (k,c)=>playMinigame(k,c);
+
+function renderMinigames(){
+  const wrap = document.getElementById("minigamesGrid");
+  wrap.innerHTML = MINIGAMES.map(g=>{
+    const cdUntil = (state.minigameCooldowns||{})[g.key] || 0;
+    const remaining = cdUntil - Date.now();
+    const onCooldown = remaining > 0;
+    const cdText = onCooldown ? ("Восстановится через "+Math.ceil(remaining/1000)+"с") : "Готово к игре";
+    return `<div class="mg-card">
+      <div style="font-size:34px;">${g.icon}</div>
+      <h3>${g.name}</h3>
+      <p style="font-size:12.5px;color:var(--text-dim);min-height:36px;">${g.desc}</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;">
+        <button class="btn primary small" ${onCooldown?"disabled":""} onclick="window.__playMg('${g.key}',0)">${g.labels[0]}</button>
+        <button class="btn primary small" ${onCooldown?"disabled":""} onclick="window.__playMg('${g.key}',1)">${g.labels[1]}</button>
+      </div>
+      <div class="cd">${cdText}</div>
+    </div>`;
+  }).join("");
+}
+
+/* =========================================================
+   RENDER: EVENTS
+   ========================================================= */
+function renderEvents(){
+  const [,max] = luckRange(state.luckLevel);
+  const info = getCurrentEventInfo(max);
+  applyEventMutation(info);
+  const banner = document.getElementById("eventBanner");
+  banner.classList.toggle("live", info.active);
+  document.getElementById("rainFx").style.display = "none";
+  document.getElementById("sunFx").style.display = "none";
+  if(info.active){
+    document.getElementById("eventBannerTitle").textContent = info.def.icon+" "+info.def.name;
+    const names = info.targets.map(id=>SEEDS[id] ? SEEDS[id].name : ("#"+id));
+    let desc = info.def.desc;
+    if(info.def.luckBoost){
+      desc = "Удача ролла временно повышена на "+info.def.luckBoost+" уровня.";
+    } else if(names.length){
+      desc = names.slice(0,6).join(", ") + " " + (names.length>1?"получают":"получает") + " буст ×"+info.def.mult+".";
+    }
+    document.getElementById("eventBannerDesc").textContent = desc;
+    if(!state.reduceMotion){
+      if(info.def.key==="rain"){ document.getElementById("rainFx").style.display=""; buildRain(); }
+      if(info.def.key==="sun" || info.def.key==="meteor"){ document.getElementById("sunFx").style.display=""; }
+    }
+  } else {
+    document.getElementById("eventBannerTitle").textContent = "Сейчас нет события";
+    document.getElementById("eventBannerDesc").textContent = "Погода спокойная. Скоро что-то произойдёт.";
+  }
+  const mm = Math.floor(info.msRemaining/60000), ss = Math.floor((info.msRemaining%60000)/1000);
+  document.getElementById("eventBannerTimer").textContent = (info.active?"Закончится через ":"Следующее событие через ")+String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0");
+
+  const list = document.getElementById("eventDefList");
+  if(!list.dataset.built){
+    list.innerHTML = EVENT_DEFS.map(d=>`
+      <div class="eventdef">
+        <div class="ic">${d.icon}</div>
+        <h4>${d.name}</h4>
+        <p>${d.desc}</p>
+      </div>
+    `).join("");
+    list.dataset.built = "1";
+  }
+}
+function buildRain(){
+  const fx = document.getElementById("rainFx");
+  if(fx.childElementCount>0) return;
+  for(let i=0;i<24;i++){
+    const d = document.createElement("div");
+    d.className = "drop";
+    d.style.left = (Math.random()*100)+"%";
+    d.style.animationDuration = (0.6+Math.random()*0.7)+"s";
+    d.style.animationDelay = (Math.random()*1.5)+"s";
+    fx.appendChild(d);
+  }
+}
+
+/* =========================================================
+   RENDER: MULTIPLAYER
+   ========================================================= */
+function renderMultiplayer(){
+  const inRoom = !!(state.roomCode && roomState);
+  document.getElementById("mpNoRoom").style.display = (!inRoom && myUid) ? "" : "none";
+  document.getElementById("mpInRoom").style.display = inRoom ? "" : "none";
+  if(!inRoom) return;
+
+  document.getElementById("roomCodeDisplay").textContent = state.roomCode;
+  const members = roomState.members || {};
+  const memberList = document.getElementById("memberList");
+  memberList.innerHTML = "";
+  const toSelect = document.getElementById("tradeToSelect");
+  toSelect.innerHTML = '<option value="">Отправить кому…</option>';
+  Object.keys(members).forEach(uid=>{
+    if(!members[uid]) return;
+    const row = document.createElement("div");
+    row.className = "memberrow";
+    row.innerHTML = `<span class="who">${members[uid].name || "Садовод"}${uid===myUid?" (ты)":""}</span>`;
+    memberList.appendChild(row);
+    if(uid !== myUid){
+      const opt = document.createElement("option");
+      opt.value = uid; opt.textContent = members[uid].name || "Садовод";
+      toSelect.appendChild(opt);
+    }
+  });
+
+  const seedSelect = document.getElementById("tradeSeedSelect");
+  seedSelect.innerHTML = '<option value="">Семя…</option>';
+  Object.keys(state.inventory).filter(k=>(state.inventory[k]||0)>0).sort((a,b)=>{
+    const A=parseKey(a), B=parseKey(b); return A.id-B.id || A.tier-B.tier;
+  }).forEach(k=>{
+    const {id,tier} = parseKey(k);
+    if(!SEEDS[id]) return;
+    const tierDef = MATERIAL_TIERS[tier]||MATERIAL_TIERS[0];
+    const opt = document.createElement("option");
+    opt.value = k; opt.textContent = SEEDS[id].name+(tier?(" ["+tierDef.label+"]"):"")+" (×"+ownedCount(id,tier)+")";
+    seedSelect.appendChild(opt);
+  });
+
+  const log = document.getElementById("tradeLog");
+  const trades = (roomState.trades || []).slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,25);
+  log.innerHTML = trades.map(t=>{
+    const s = SEEDS[t.seedId];
+    const tier = t.tier || 0;
+    const tierDef = MATERIAL_TIERS[tier]||MATERIAL_TIERS[0];
+    const mine_in = t.toUid===myUid;
+    let actions = "";
+    if(t.status==="pending" && mine_in){
+      actions = `<button class="btn small primary" onclick="window.__acceptTrade('${t.id}')">Принять</button> <button class="btn small" onclick="window.__declineTrade('${t.id}')">Отклонить</button>`;
+    }
+    const statusClass = (t.status==="completed") ? "done" : (t.status==="pending"||t.status==="accepted") ? "pending" : "";
+    return `<div class="tradeitem">
+      <span style="display:flex;align-items:center;gap:8px;">${s?seedIconSVG(t.seedId,20,tier):""} ${t.fromName} → ${t.toName}: ${s?s.name:"?"}${tier?(" ["+tierDef.label+"]"):""} ×${t.qty}</span>
+      <span style="display:flex; align-items:center; gap:8px;"><span class="badge ${statusClass}">${t.status}</span>${actions}</span>
+    </div>`;
+  }).join("") || '<p style="color:var(--text-faint); font-size:12.5px;">Пока нет обменов.</p>';
+}
+window.__acceptTrade = (id)=>acceptTrade(id);
+window.__declineTrade = (id)=>declineTrade(id);
+
+document.getElementById("saveProfileBtn").addEventListener("click", saveProfile);
+document.getElementById("sendFriendRequestBtn").addEventListener("click", sendFriendRequest);
+document.getElementById("friendSearchInput").addEventListener("keydown", e=>{if(e.key==="Enter") sendFriendRequest();});
+document.getElementById("displayNameInput").addEventListener("keydown", e=>{if(e.key==="Enter") saveProfile();});
+
+document.getElementById("createRoomBtn").addEventListener("click", createRoom);
+document.getElementById("joinRoomBtn").addEventListener("click", ()=>joinRoom(document.getElementById("joinRoomInput").value));
+document.getElementById("copyRoomBtn").addEventListener("click", ()=>{
+  if(state.roomCode){ navigator.clipboard && navigator.clipboard.writeText(state.roomCode).catch(()=>{}); toast("Код комнаты скопирован."); }
+});
+document.getElementById("leaveRoomBtn").addEventListener("click", ()=>{
+  showModal("Покинуть комнату", "Ты сможешь вернуться позже с тем же кодом, пока комната существует.", leaveRoom);
+});
+document.getElementById("tradeProposeBtn").addEventListener("click", ()=>{
+  const to = document.getElementById("tradeToSelect").value;
+  const seedKey = document.getElementById("tradeSeedSelect").value;
+  const qty = document.getElementById("tradeQtyInput").value;
+  if(!to || !seedKey){ toast("Выбери получателя и семя."); return; }
+  const {id} = parseKey(seedKey);
+  showModal("Подтвердить обмен", "Отправить "+qty+"× "+(SEEDS[id]?SEEDS[id].name:"семя")+"? Отменить после подтверждения будет нельзя.", ()=>{
+    proposeTrade(to, seedKey, qty);
+  });
+});
+
+/* =========================================================
+   RENDER: COLLECTION
+   ========================================================= */
+function renderCollection(){
+  const grid = document.getElementById("collectionGrid");
+  grid.innerHTML = "";
+  const ids = [];
+  for(let i=1;i<=SEED_COUNT;i++) ids.push(i);
+  ids.push(SECRET_ID, GREEN_ELEPHANT_ID);
+  ids.forEach(id=>{
+    const s = SEEDS[id];
+    const discovered = state.discovered.includes(id);
+    const card = document.createElement("div");
+    card.className = "seedcard" + (discovered ? "" : " locked");
+    card.innerHTML = `
+      <div class="emo">${discovered ? seedIconSVG(id, 44, 0) : '<span style="font-size:34px;">?</span>'}</div>
+      <div class="nm">${discovered ? s.name : "???"}</div>
+      <div class="cv">${discovered ? (formatMoney(s.click)+"/клик") : ("Семя #"+id)}</div>
+      <div class="tierbar" style="background:${discovered ? s.tier.color : 'var(--border)'}"></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* =========================================================
+   RENDER: SETTINGS
+   ========================================================= */
+function renderSettings(){
+  document.getElementById("displayNameInput").value = state.displayName || "";
+  document.getElementById("soundToggle").classList.toggle("on", !!state.soundOn);
+  document.getElementById("motionToggle").classList.toggle("on", !!state.reduceMotion);
+}
+document.getElementById("displayNameInput").addEventListener("change", (e)=>{
+  state.displayName = e.target.value.slice(0,24);
+  scheduleSave();
+  if(myUid && state.roomCode){
+    firebaseDb.collection("rooms").doc(state.roomCode).update({["members."+myUid+".name"]: myName()}).catch(()=>{});
+  }
+});
+document.getElementById("soundToggle").addEventListener("click", (e)=>{
+  state.soundOn = !state.soundOn; scheduleSave(); renderSettings();
+});
+document.getElementById("motionToggle").addEventListener("click", (e)=>{
+  state.reduceMotion = !state.reduceMotion; scheduleSave(); renderSettings();
+});
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  showModal("Сбросить прогресс", "Это навсегда сотрёт деньги, инвентарь и все апгрейды. Уверена?", ()=>{
+    const keepName = state.displayName, keepRoom = state.roomCode;
+    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    state.displayName = keepName; state.roomCode = keepRoom;
+    scheduleSave();
+    fullRender();
+    toast("Прогресс сброшен.");
+  });
+});
+
+/* =========================================================
+   AUTOCLICKER LOOP + TICKERS
+   ========================================================= */
+let autoAccum = 0;
+setInterval(()=>{
+  const cd = currentAutoCooldown();
+  if(cd){
+    autoAccum += 1;
+    if(autoAccum >= cd){
+      autoAccum = 0;
+      clickSeed(true);
+    }
+  } else {
+    autoAccum = 0;
+  }
+}, 1000);
+
+setInterval(()=>{
+  const activeView = document.querySelector(".view.active");
+  const id = activeView ? activeView.id : "";
+  if(id === "view-home"){
+    renderHome();
+  }
+  if(id === "view-events") renderEvents();
+  if(id === "view-minigames") renderMinigames();
+}, 1000);
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function fullRender(){
+  renderHome();
+  renderInventory();
+  renderRoll();
+  renderFusion();
+  renderUpgrades();
+  renderMinigames();
+  renderEvents();
+  renderMultiplayer();
+  renderCollection();
+  renderSettings();
+}
+
+initPersistence();
+
+/* =========================================================
+   GROWdin expansion: wheels, pets, memes, music, extra events
+   ========================================================= */
+const PETS = {
+  sproutling:{name:"Росточек",rarity:"Обычный",emoji:"🌱",moneyMult:1.03,desc:"+3% денег"},
+  pebble:{name:"Камушек",rarity:"Обычный",emoji:"🪨",moneyMult:1.04,desc:"+4% денег"},
+  bunny:{name:"Зайчик",rarity:"Обычный",emoji:"🐰",moneyMult:1.05,desc:"+5% денег"},
+  fox:{name:"Лисёнок",rarity:"Редкий",emoji:"🦊",moneyMult:1.08,desc:"+8% денег"},
+  bee:{name:"Пчёлка",rarity:"Редкий",emoji:"🐝",moneyMult:1.09,desc:"+9% денег"},
+  capy:{name:"Капибара",rarity:"Редкий",emoji:"🦫",moneyMult:1.10,desc:"+10% денег"},
+  dragon:{name:"Дракончик",rarity:"Ультра редкий",emoji:"🐉",moneyMult:1.15,desc:"+15% денег"},
+  axolotl:{name:"Аксолотль",rarity:"Ультра редкий",emoji:"🦎",moneyMult:1.17,desc:"+17% денег"},
+  cat:{name:"Котик",rarity:"Ультра редкий",emoji:"🐱",moneyMult:1.18,desc:"+18% денег"},
+  unicorn:{name:"Единорог",rarity:"Эпический",emoji:"🦄",moneyMult:1.25,desc:"+25% денег"},
+  penguin:{name:"Пингвин",rarity:"Эпический",emoji:"🐧",moneyMult:1.27,desc:"+27% денег"},
+  deer:{name:"Олень",rarity:"Эпический",emoji:"🦌",moneyMult:1.30,desc:"+30% денег"},
+  phoenix:{name:"Феникс",rarity:"Легендарный",emoji:"🔥",moneyMult:1.45,desc:"+45% денег"},
+  moonbunny:{name:"Лунный кролик",rarity:"Легендарный",emoji:"🌙",moneyMult:1.50,desc:"+50% денег"},
+  starwhale:{name:"Звёздный кит",rarity:"Секретный",emoji:"🐋",moneyMult:1.75,desc:"+75% денег"}
+};
+const MEMES = {
+  doge:{name:"Doge",rarity:"Обычный",emoji:"🐶",moneyMult:1.02,desc:"+2% денег"},
+  bonk:{name:"Bonk",rarity:"Обычный",emoji:"🔨",moneyMult:1.03,desc:"+3% денег"},
+  stonks:{name:"Stonks",rarity:"Обычный",emoji:"📈",moneyMult:1.04,desc:"+4% денег"},
+  giga:{name:"Giga",rarity:"Редкий",emoji:"🗿",moneyMult:1.07,desc:"+7% денег"},
+  troll:{name:"Troll",rarity:"Редкий",emoji:"😈",moneyMult:1.08,desc:"+8% денег"},
+  catjam:{name:"Cat Jam",rarity:"Редкий",emoji:"🐈",moneyMult:1.09,desc:"+9% денег"},
+  pepe:{name:"Pepe",rarity:"Ультра редкий",emoji:"🐸",moneyMult:1.14,desc:"+14% денег"},
+  among:{name:"Sus",rarity:"Ультра редкий",emoji:"📮",moneyMult:1.16,desc:"+16% денег"},
+  npc:{name:"NPC",rarity:"Ультра редкий",emoji:"😐",moneyMult:1.18,desc:"+18% денег"},
+  galaxybrain:{name:"Galaxy Brain",rarity:"Эпический",emoji:"🧠",moneyMult:1.25,desc:"+25% денег"},
+  dancing:{name:"Dancing",rarity:"Эпический",emoji:"💃",moneyMult:1.28,desc:"+28% денег"},
+  stares:{name:"Stare",rarity:"Эпический",emoji:"👁️",moneyMult:1.30,desc:"+30% денег"},
+  ukrainian:{name:"Украинский мем",rarity:"Легендарный",emoji:"🇺🇦",moneyMult:1.45,desc:"+45% денег"},
+  kazakh:{name:"Казахский мем",rarity:"Легендарный",emoji:"🇰🇿",moneyMult:1.50,desc:"+50% денег"},
+  rainbowbrain:{name:"Rainbow Brain",rarity:"Секретный",emoji:"🌈",moneyMult:1.75,desc:"+75% денег"}
+};
+const WHEEL_RARITY_WEIGHTS = {"Обычный":70,"Редкий":22,"Ультра редкий":6,"Эпический":1.6,"Легендарный":0.35,"Секретный":0.05};
+const PET_RARITY_ORDER=["Обычный","Редкий","Ультра редкий","Эпический","Легендарный","Секретный"];
+function weightedByRarity(obj){
+  const pool=[]; Object.keys(obj).forEach(k=>{const x=obj[k]; const w=WHEEL_RARITY_WEIGHTS[x.rarity]||1; pool.push({k,w});});
+  const luckBoost=Math.min(3,(state.luckLevel||1)-1)*0.015;
+  let total=0; pool.forEach(x=>{const d=obj[x.k].rarity; x.w*=PET_RARITY_ORDER.indexOf(d)>=2?(1+luckBoost):1; total+=x.w;});
+  let r=Math.random()*total; for(const x of pool){r-=x.w;if(r<=0)return x.k;} return pool[pool.length-1].k;
+}
+function ensureExtraState(){
+  if(!state.pets) state.pets={}; if(!state.memes) state.memes={}; if(!state.equippedPet) state.equippedPet=null;
+  if(typeof state.musicOn!=='boolean') state.musicOn=true; if(typeof state.rareChanceLevel!=='number') state.rareChanceLevel=0;
+}
+function rarityColor(r){return {"Обычный":"var(--tier-common)","Редкий":"var(--tier-rare)","Ультра редкий":"var(--tier-epic)","Эпический":"#c77dff","Легендарный":"var(--gold-soft)","Секретный":"var(--tier-secret)"}[r]||'var(--text)';}
+function spinWheel(type){
+  ensureExtraState();
+  const isPet=type==='pets', obj=isPet?PETS:MEMES;
+  const key=weightedByRarity(obj), item=obj[key];
+  if(isPet) state.pets[key]=(state.pets[key]||0)+1; else state.memes[key]=(state.memes[key]||0)+1;
+  scheduleSave();
+  toast((isPet?'Питомец: ':'Мем: ')+item.emoji+' '+item.name+' — '+item.rarity+'! '+item.desc);
+  renderWheels(); renderCollection(); renderHome();
+}
+function renderWheels(){
+  ensureExtraState(); const grid=document.getElementById('wheelGrid'); if(!grid)return;
+  const make=(type,title,desc)=>{
+    const obj=type==='pets'?PETS:MEMES; const owned=Object.values(type==='pets'?state.pets:state.memes).reduce((a,b)=>a+b,0);
+    const cards=PET_RARITY_ORDER.map(r=>`<span class="wheel-rarity" style="color:${rarityColor(r)}">${r}: ${Object.values(obj).filter(x=>x.rarity===r).length}</span>`).join(' ');
+    return `<div class="wheel-card"><div class="wheel-emoji">${type==='pets'?'🎡🐾':'🎡🤣'}</div><h3>${title}</h3><p>${desc}</p><div class="wheel-rarities">${cards}</div><div class="wheel-owned">Получено: ${owned}</div><button class="btn primary full" onclick="window.__spinWheel('${type}')">Крутить колесо</button></div>`;
+  };
+  grid.innerHTML=make('pets','Колесо питомцев','Милые питомцы дают постоянный пассивный бонус. Можно экипировать только одного.')+make('memes','Колесо мемов','Мемы дают постоянные бонусы и сохраняются в коллекции.');
+  const panel=document.getElementById('petEquipPanel');
+  const entries=Object.entries(state.pets).filter(([k,v])=>v>0);
+  panel.innerHTML=entries.length?entries.map(([k,v])=>{const p=PETS[k];return `<div class="pet-row"><span>${p.emoji} ${p.name} <small>${p.rarity} · ${p.desc} · ×${v}</small></span><button class="btn small ${state.equippedPet===k?'primary':''}" onclick="window.__equipPet('${k}')">${state.equippedPet===k?'Экипирован':'Экипировать'}</button></div>`}).join(''):'<span style="color:var(--text-faint)">Пока нет питомцев.</span>';
+}
+window.__spinWheel=spinWheel;
+window.__equipPet=function(k){ensureExtraState();state.equippedPet=state.equippedPet===k?null:k;scheduleSave();renderWheels();renderHome();};
+function renderCollection(){
+  ensureExtraState(); const grid=document.getElementById('collectionGrid'); if(!grid)return;
+  const seedIds=[...Array(SEED_COUNT)].map((_,i)=>i+1).concat([SECRET_ID,GREEN_ELEPHANT_ID]);
+  grid.innerHTML=`<div class="collection-tabs"><button class="btn primary" data-ct="seeds">Семена</button><button class="btn" data-ct="pets">Питомцы</button><button class="btn" data-ct="memes">Мемы</button><button class="btn" data-ct="mutations">Мутации</button></div><div id="collectionInner"></div>`;
+  const inner=document.getElementById('collectionInner');
+  const renderSeeds=()=>{inner.innerHTML='<div class="seedgrid">'+seedIds.map(id=>{const s=SEEDS[id],d=state.discovered.includes(id);return `<div class="seedcard ${d?'':'locked'}"><div class="emo">${d?seedIconSVG(id,44,0):'<span style="font-size:34px">?</span>'}</div><div class="nm">${d?s.name:'???'}</div><div class="cv">${d?formatMoney(s.click)+'/клик':'Семя #'+id}</div><div class="tierbar" style="background:${d?s.tier.color:'var(--border)'}"></div></div>`}).join('')+'</div>';};
+  const renderPets=()=>{inner.innerHTML='<div class="collection-list">'+Object.entries(PETS).map(([k,p])=>`<div class="collect-row"><span>${p.emoji} <b>${p.name}</b> <small>${p.rarity} · ${p.desc}</small></span><span>${state.pets[k]||0}×</span></div>`).join('')+'</div>';};
+  const renderMemes=()=>{inner.innerHTML='<div class="collection-list">'+Object.entries(MEMES).map(([k,m])=>`<div class="collect-row"><span>${m.emoji} <b>${m.name}</b> <small>${m.rarity} · ${m.desc}</small></span><span>${state.memes[k]||0}×</span></div>`).join('')+'</div>';};
+  const renderMuts=()=>{const all=[];Object.keys(state.mutations||{}).forEach(id=>(state.mutations[id]||[]).forEach(m=>all.push({id,m})));inner.innerHTML=all.length?'<div class="collection-list">'+all.map(x=>`<div class="collect-row">${SEEDS[x.id]?SEEDS[x.id].name:'Seed #'+x.id} — ${x.m.label} ×${x.m.mult}</div>`).join('')+'</div>':'<p style="color:var(--text-faint)">Пока нет мутаций.</p>';};
+  renderSeeds(); grid.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>{grid.querySelectorAll('[data-ct]').forEach(x=>x.classList.remove('primary'));b.classList.add('primary');({seeds:renderSeeds,pets:renderPets,memes:renderMemes,mutations:renderMuts}[b.dataset.ct])();});
+}
+// Extra event definitions are merged into the existing list without removing old events.
+EVENT_DEFS.push(
+  {key:'graycoat',name:'Серокурточный ивент',icon:'🩶',mult:1,desc:'Небольшой шанс получить постоянную мутацию «Серой куртки».',permanentMutation:{label:'Серая куртка',mult:1.35},mutationChance:.35,pick(r,u){return [1+Math.floor(r()*Math.max(1,u))];}},
+  {key:'goldenrain',name:'Золотой дождик',icon:'🌧️',mult:1.5,desc:'+50% к шансу золотых семян из роллов.',rollBoost:.5,pick(){return[];}},
+  {key:'frost',name:'Мороз',icon:'❄️',mult:1.2,desc:'Повышает шанс мутации «Замороженный».',permanentMutation:{label:'Замороженный',mult:1.5},mutationChance:.2,pick(r,u){return[1+Math.floor(r()*Math.max(1,u))];}},
+  {key:'luckyday',name:'Удачливый день',icon:'🍀',mult:1,desc:'+50% удачи роллов и шанс мутации «Удача».',luckBoost:1.5,permanentMutation:{label:'Удача',mult:1.4},mutationChance:.15,pick(r,u){return[1+Math.floor(r()*Math.max(1,u))];}},
+  {key:'earthquake',name:'Землетрясение',icon:'🌋',mult:1,desc:'Шанс мутации «Разорванный».',permanentMutation:{label:'Разорванный',mult:1.6},mutationChance:.2,pick(r,u){return[1+Math.floor(r()*Math.max(1,u))];}},
+  {key:'space',name:'Космос',icon:'🌌',mult:1.5,desc:'+50% денег от клика и шанс галактической мутации.',permanentMutation:{label:'Галактический',mult:2},mutationChance:.12,pick(r,u){return[1+Math.floor(r()*Math.max(1,u))];}}
+);
+// Patch event cycle to keep frequent 20-minute events.
+const OLD_EVENT_CYCLE_MS=EVENT_CYCLE_MS;
+// We cannot reassign const, so getCurrentEventInfo is replaced below.
+const EVENT_CYCLE_20=20*60*1000;
+const EVENT_DURATION_2=2*60*1000;
+function getCurrentEventInfo(unlockedMax){
+  const now=Date.now(), cycleIndex=Math.floor(now/EVENT_CYCLE_20), cycleStart=cycleIndex*EVENT_CYCLE_20, eventStart=cycleStart+(EVENT_CYCLE_20-EVENT_DURATION_2), eventEnd=cycleStart+EVENT_CYCLE_20;
+  const active=now>=eventStart&&now<eventEnd; const rng=mulberry32(hashStr('growdin-event-'+cycleIndex)); const def=EVENT_DEFS[Math.floor(rng()*EVENT_DEFS.length)]; const targets=def.pick(rng,Math.max(2,unlockedMax));
+  return {active,def,targets,msRemaining:active?(eventEnd-now):(eventStart-now<0?eventStart+EVENT_CYCLE_20-now:eventStart-now),nextCycleIndex:cycleIndex};
+}
+// Click sound + calm generated background music.
+let __audioCtx=null, __musicTimer=null, __musicStep=0;
+function ensureAudio(){if(!__audioCtx) __audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(__audioCtx.state==='suspended')__audioCtx.resume();}
+function clickTone(){if(!state.soundOn)return;try{ensureAudio();const o=__audioCtx.createOscillator(),g=__audioCtx.createGain();o.type='sine';o.frequency.value=520;g.gain.setValueAtTime(.0001,__audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.045,__audioCtx.currentTime+.01);g.gain.exponentialRampToValueAtTime(.0001,__audioCtx.currentTime+.10);o.connect(g);g.connect(__audioCtx.destination);o.start();o.stop(__audioCtx.currentTime+.11);}catch(e){}}
+function musicTick(){if(!state.musicOn)return;try{ensureAudio();const notes=[261.63,329.63,392,329.63,293.66,349.23,440,349.23];const o=__audioCtx.createOscillator(),g=__audioCtx.createGain();o.type='sine';o.frequency.value=notes[__musicStep++%notes.length];g.gain.setValueAtTime(.0001,__audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.012,__audioCtx.currentTime+.08);g.gain.exponentialRampToValueAtTime(.0001,__audioCtx.currentTime+1.0);o.connect(g);g.connect(__audioCtx.destination);o.start();o.stop(__audioCtx.currentTime+1.05);}catch(e){}}
+function startMusic(){clearInterval(__musicTimer);if(state.musicOn){__musicTimer=setInterval(musicTick,1100);}}
+const __oldClickSeed=clickSeed;
+clickSeed=function(fromAuto){__oldClickSeed(fromAuto);if(!fromAuto)clickTone();};
+function renderSettings(){ensureExtraState();document.getElementById('displayNameInput').value=state.displayName||'';document.getElementById('soundToggle').classList.toggle('on',!!state.soundOn);document.getElementById('musicToggle')?.classList.toggle('on',!!state.musicOn);document.getElementById('motionToggle').classList.toggle('on',!!state.reduceMotion);}
+document.getElementById('musicToggle')?.addEventListener('click',()=>{ensureExtraState();state.musicOn=!state.musicOn;scheduleSave();renderSettings();if(state.musicOn){try{ensureAudio();}catch(e){}startMusic();}else clearInterval(__musicTimer);});
+// Fix friend request when target is already in the same room: resolve UID from room members first.
+const __oldSendFriendRequest=sendFriendRequest;
+sendFriendRequest=async function(){
+  if(!myUid)return; ensureExtraState(); const input=document.getElementById('friendSearchInput'); const name=(input.value||'').trim().toLowerCase(); const msg=document.getElementById('friendMessage'); if(!name){msg.textContent='Введи ник.';return;}
+  try{
+    let target=null;
+    if(roomState&&roomState.members){for(const [uid,m] of Object.entries(roomState.members)){if(uid!==myUid&&String(m.name||'').trim().toLowerCase()===name){target={id:uid,data:m};break;}}}
+    if(!target){const q=await firebaseDb.collection('profiles').where('displayNameLower','==',name).limit(1).get();if(q.empty){msg.textContent='Игрок с таким ником не найден.';return;}target={id:q.docs[0].id,data:q.docs[0].data()};}
+    if(target.id===myUid){msg.textContent='Нельзя добавить самого себя.';return;}
+    const existing=await firebaseDb.collection('users').doc(myUid).collection('friends').doc(target.id).get();
+    if(existing.exists){msg.textContent='Вы уже друзья.';return;}
+    const reverse=await firebaseDb.collection('users').doc(target.id).collection('friends').doc(myUid).get();
+    if(reverse.exists){msg.textContent='Этот игрок уже добавил тебя в друзья.';return;}
+    await firebaseDb.collection('users').doc(target.id).collection('friendRequests').doc(myUid).set({fromUid:myUid,fromName:currentDisplayName(),createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    input.value=''; msg.textContent='Запрос отправлен.';
+  }catch(e){console.error(e);msg.textContent='Не удалось отправить запрос: '+(e.code||'ошибка')+'.';}
+};
+// Add the rarity upgrade card.
+function ensureRareUpgradeCard(){
+  const wrap=document.querySelector('#view-upgrades .upgrade-cols'); if(!wrap||document.getElementById('rareChanceCard'))return;
+  const card=document.createElement('div');card.className='upgrade-card';card.id='rareChanceCard';card.innerHTML='<h3>Шанс редкого семечка</h3><div class="desc">Каждый уровень сдвигает 1% шанса от обычного к более редкому: 75/25 → 74/26 → 73/27 и так далее.</div><div class="upgrade-level">Уровень <b id="rareChanceLevel">0</b> / 24</div><div class="progressbar"><div id="rareChanceProgress" style="width:0%"></div></div><div class="cost-row"><div class="cost">Далее: <b id="rareChanceCost">$5000</b></div><button class="btn primary" id="buyRareChance">Купить</button></div>';
+  wrap.appendChild(card);document.getElementById('buyRareChance').onclick=()=>{ensureExtraState();const cost=Math.round(5000*Math.pow(1.65,state.rareChanceLevel));if(state.rareChanceLevel>=24||state.money<cost)return;state.money-=cost;state.rareChanceLevel++;scheduleSave();renderUpgrades();renderHome();};
+}
+const __oldRenderUpgrades=renderUpgrades;
+renderUpgrades=function(){__oldRenderUpgrades();ensureRareUpgradeCard();ensureExtraState();document.getElementById('rareChanceLevel').textContent=state.rareChanceLevel;document.getElementById('rareChanceProgress').style.width=(state.rareChanceLevel/24*100)+'%';const cost=Math.round(5000*Math.pow(1.65,state.rareChanceLevel));document.getElementById('rareChanceCost').textContent=state.rareChanceLevel>=24?'Максимум':formatMoney(cost);document.getElementById('buyRareChance').disabled=state.rareChanceLevel>=24||state.money<cost;};
+// Wheel UI CSS and collection styles.
+const extraStyle=document.createElement('style');extraStyle.textContent=`
+.wheel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.wheel-card{padding:18px;border:1px solid var(--border);border-radius:16px;background:var(--surface);text-align:center}.wheel-emoji{font-size:46px}.wheel-card h3{font-family:var(--font-display);margin:8px 0}.wheel-card p{color:var(--text-dim);font-size:13px}.wheel-rarities{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;font-size:11px;margin:12px 0}.wheel-rarity{padding:3px 7px;border:1px solid var(--border);border-radius:10px}.wheel-owned{font-size:12px;color:var(--text-faint);margin-bottom:10px}.pet-row,.collect-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border-soft);background:var(--surface-2);border-radius:10px;margin-bottom:7px}.pet-row small,.collect-row small{color:var(--text-dim);margin-left:6px}.collection-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.collection-list{display:flex;flex-direction:column;gap:7px}
+`;document.head.appendChild(extraStyle);
+ensureExtraState();ensureRareUpgradeCard();renderWheels();startMusic();
+
+/* Final gameplay additions */
+const MUTATION_WHEEL_ITEMS=[
+  {label:'Золотой',mult:6},{label:'Алмазный',mult:36},{label:'Мифический',mult:220},
+  {label:'Серый',mult:1.35},{label:'Замороженный',mult:1.5},{label:'Удача',mult:1.4},
+  {label:'Разорванный',mult:1.6},{label:'Галактический',mult:2},{label:'Метеор',mult:3},{label:'Казах',mult:2}
+];
+const __oldRenderWheels=renderWheels;
+renderWheels=function(){
+  __oldRenderWheels(); const grid=document.getElementById('wheelGrid'); if(!grid)return;
+  const mutCard=`<div class="wheel-card"><div class="wheel-emoji">🧬🌈</div><h3>Колесо мутаций</h3><p>Может дать активному семечку постоянную мутацию или особую версию. Rainbow здесь НЕ выпадает.</p><div class="wheel-rarities"><span class="wheel-rarity">Золото</span><span class="wheel-rarity">Алмаз</span><span class="wheel-rarity">Мифик</span><span class="wheel-rarity">Ивентовые</span></div><button class="btn primary full" onclick="window.__spinMutationWheel()">Крутить мутацию</button></div>`;
+  grid.insertAdjacentHTML('beforeend',mutCard);
+  renderPetCompanion();
+};
+window.__spinMutationWheel=function(){
+  ensureMutationState(); const id=state.activeSeedId; const m=MUTATION_WHEEL_ITEMS[Math.floor(Math.random()*MUTATION_WHEEL_ITEMS.length)];
+  if(!state.mutations[String(id)])state.mutations[String(id)]=[]; state.mutations[String(id)].push({label:m.label,mult:m.mult}); scheduleSave(); toast(SEEDS[id].name+' получила мутацию «'+m.label+'» ×'+m.mult+'!'); renderHome();renderCollection();
+};
+function renderPetCompanion(){
+  ensureExtraState(); let el=document.getElementById('petCompanion'); if(!el){el=document.createElement('div');el.id='petCompanion';document.body.appendChild(el);}
+  const p=state.equippedPet?PETS[state.equippedPet]:null; el.innerHTML=p?`<div class="pet-companion"><span>${p.emoji}</span><small>${p.name}</small></div>`:'';
+}
+const __oldRenderHome2=renderHome;
+renderHome=function(){__oldRenderHome2();renderPetCompanion();};
+const __oldFullRender2=fullRender;
+fullRender=function(){__oldFullRender2();renderWheels();renderPetCompanion();};
+// Rainbow merge: 8 Heavenly -> 1 Rainbow variant, separately from the normal 4x fusion chain.
+const __oldRenderFusion2=renderFusion;
+renderFusion=function(){
+  __oldRenderFusion2(); const wrap=document.getElementById('fusionGrid'); if(!wrap)return;
+  const count=ownedCount(state.activeSeedId,4); const card=document.createElement('div'); card.className='fusion-row rainbow-merge-card';
+  card.innerHTML=`<div style="font-weight:700;font-size:18px">🌈 Радужное слияние</div><p style="color:var(--text-dim);font-size:12px">8 небесных семян одного вида → 1 радужное. Радужное нельзя получить напрямую из колёс.</p><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span>Небесных: <b>${count}</b></span><button class="btn primary" ${count<8?'disabled':''} onclick="window.__rainbowMerge()">Объединить 8 → 🌈</button></div>`;
+  wrap.appendChild(card);
+};
+window.__rainbowMerge=function(){
+  const id=state.activeSeedId; if(ownedCount(id,4)<8)return; removeInv(id,4,8); addInv(id,5,1); scheduleSave(); toast('🌈 Радужное семечко создано!'); renderFusion();renderInventory();renderHome();
+};
+// Rainbow tier support for income and labels.
+const __oldActiveClickValue2=activeClickValue;
+activeClickValue=function(){if((state.activeTier||0)===5){const base=(SEEDS[state.activeSeedId]||SEEDS[1]).click*10000;return Math.max(1,Math.round(base*currentMultiplier()*activeBuffMultiplier()*mutationMultiplierForSeed(state.activeSeedId)));}return __oldActiveClickValue2();};
+// Replace the old mini-game screen with a rotating 5-minute shop.
+function renderMinigames(){
+  const grid=document.getElementById('minigamesGrid'); if(!grid)return;
+  const cycle=Math.floor(Date.now()/(5*60*1000));
+  const stock=[
+    {name:'Зелье удачи',icon:'🍀',price:2500,desc:'+50% эффективной удачи на 3 минуты',buy(){addBuff('Зелье удачи',1.5,180000);}},
+    {name:'Зелье денег',icon:'🧪',price:4000,desc:'×1.5 денег на 3 минуты',buy(){addBuff('Зелье денег',1.5,180000);}},
+    {name:'Спин питомца',icon:'🐾',price:7500,desc:'Дополнительное вращение колеса питомцев',buy(){spinWheel('pets');}},
+    {name:'Спин мема',icon:'🤣',price:7500,desc:'Дополнительное вращение колеса мемов',buy(){spinWheel('memes');}}
+  ];
+  const discount=cycle%3===0?0.7:1;
+  grid.innerHTML=stock.map((x,i)=>{const price=Math.round(x.price*discount);return `<div class="mg-card"><div class="mg-emoji">${x.icon}</div><h3>${x.name}</h3><p>${x.desc}${discount<1?' · -30%':''}</p><button class="btn primary" ${state.money<price?'disabled':''} onclick="window.__buyShop(${i},${price})">Купить — ${formatMoney(price)}</button></div>`}).join('');
+  window.__shopStock=stock;
+}
+window.__buyShop=function(i,price){const x=window.__shopStock?.[i];if(!x||state.money<price)return;state.money-=price;x.buy();scheduleSave();renderHome();renderMinigames();};
+// Keep the active pet visible at the bottom and animate it gently.
+const petStyle=document.createElement('style');petStyle.textContent=`#petCompanion{position:fixed;left:0;right:0;bottom:8px;pointer-events:none;z-index:35}.pet-companion{width:max-content;margin-left:8%;display:flex;align-items:center;gap:6px;padding:6px 9px;border-radius:14px;background:rgba(24,42,28,.9);border:1px solid var(--border);box-shadow:0 5px 18px rgba(0,0,0,.25);animation:petRun 4s ease-in-out infinite alternate}.pet-companion span{font-size:28px}.pet-companion small{font-size:10px;color:var(--text-dim)}@keyframes petRun{from{transform:translateX(0)}to{transform:translateX(70vw)}}.rainbow-merge-card{border:1px solid #d88cff;box-shadow:0 0 20px rgba(200,100,255,.2)}@media(max-width:880px){#petCompanion{bottom:68px}}`;document.head.appendChild(petStyle);
+
+
+/* =========================================================
+   REWORK v2: real illustrated pets, reel-style fortune wheels,
+   random roll mutations and a real shop tab.
+   ========================================================= */
+const PET_ART_V2 = {
+  sproutling:{kind:'sprout'}, pebble:{kind:'pebble'}, bunny:{kind:'bunny'}, fox:{kind:'fox'}, bee:{kind:'bee'}, capy:{kind:'capy'},
+  dragon:{kind:'dragon'}, axolotl:{kind:'axolotl'}, cat:{kind:'cat'}, unicorn:{kind:'unicorn'}, penguin:{kind:'penguin'}, deer:{kind:'deer'},
+  phoenix:{kind:'phoenix'}, moonbunny:{kind:'moonbunny'}, starwhale:{kind:'whale'}
+};
+
+function petImageV2(key, size=92){
+  const k=(PET_ART_V2[key]||{}).kind||'bunny';
+  const common=`<svg viewBox="0 0 120 120" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-label="pet"><defs><linearGradient id="g${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#dbe8dc" stop-opacity=".85"/></linearGradient></defs>`;
+  let art='';
+  const face=(cx=60,cy=70,rx=34,ry=28)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#g${k})" stroke="#314936" stroke-width="3"/><circle cx="48" cy="68" r="4" fill="#202a21"/><circle cx="72" cy="68" r="4" fill="#202a21"/><path d="M55 79 Q60 84 65 79" fill="none" stroke="#314936" stroke-width="2.5" stroke-linecap="round"/>`;
+  if(k==='bunny') art=`<path d="M42 48 C30 28 31 8 43 12 C52 16 51 35 49 48" fill="#e9d9ff" stroke="#59446e" stroke-width="3"/><path d="M78 48 C90 28 89 8 77 12 C68 16 69 35 71 48" fill="#e9d9ff" stroke="#59446e" stroke-width="3"/>${face()}<circle cx="60" cy="79" r="4" fill="#d783a7"/>`;
+  else if(k==='fox') art=`<path d="M29 49 L35 20 L55 38 L65 38 L85 20 L91 49 Q96 78 60 94 Q24 78 29 49Z" fill="#f39a55" stroke="#6e4428" stroke-width="3"/>${face(60,68,32,27)}<path d="M36 45 L50 58 L39 63" fill="#fff" opacity=".9"/><path d="M84 45 L70 58 L81 63" fill="#fff" opacity=".9"/>`;
+  else if(k==='cat') art=`<path d="M29 51 L31 24 L51 40 Q60 36 69 40 L89 24 L91 51 Q94 86 60 92 Q26 86 29 51Z" fill="#b8c0c7" stroke="#3e464d" stroke-width="3"/>${face()}<path d="M39 74 L25 71 M39 79 L23 80 M81 74 L95 71 M81 79 L97 80" stroke="#3e464d" stroke-width="2"/>`;
+  else if(k==='capy') art=`<ellipse cx="60" cy="67" rx="42" ry="31" fill="#b77a4a" stroke="#68472f" stroke-width="3"/><ellipse cx="36" cy="43" rx="10" ry="7" fill="#b77a4a"/><ellipse cx="84" cy="43" rx="10" ry="7" fill="#b77a4a"/>${face(60,69,35,25)}<ellipse cx="60" cy="78" rx="9" ry="5" fill="#573b2c"/>`;
+  else if(k==='bee') art=`<ellipse cx="60" cy="68" rx="34" ry="27" fill="#f5c94a" stroke="#5e5125" stroke-width="3"/><path d="M35 56 H85 M34 70 H86 M39 84 H81" stroke="#463d22" stroke-width="8"/><ellipse cx="38" cy="40" rx="18" ry="11" fill="#d9f3ff" opacity=".8"/><ellipse cx="82" cy="40" rx="18" ry="11" fill="#d9f3ff" opacity=".8"/>${face()}`;
+  else if(k==='dragon') art=`<path d="M27 57 L21 30 L44 42 Q60 34 76 42 L99 30 L93 57 Q94 87 60 96 Q26 87 27 57Z" fill="#7fcf8c" stroke="#355f3c" stroke-width="3"/><path d="M38 35 L29 20 L50 30 M82 35 L91 20 L70 30" fill="#ff9f7a" stroke="#6b4639" stroke-width="3"/>${face()}<path d="M51 87 L60 96 L69 87" fill="#f7e9c8" stroke="#355f3c" stroke-width="2"/>`;
+  else if(k==='axolotl') art=`<ellipse cx="60" cy="70" rx="38" ry="27" fill="#ff9fba" stroke="#743f52" stroke-width="3"/><path d="M27 49 Q15 35 27 28 Q38 34 42 50 M93 49 Q105 35 93 28 Q82 34 78 50" fill="#ff6f9a" stroke="#743f52" stroke-width="3"/>${face()}<path d="M46 86 Q60 94 74 86" fill="none" stroke="#743f52" stroke-width="2"/>`;
+  else if(k==='unicorn') art=`<path d="M42 46 L60 15 L78 46" fill="#f7d6ff" stroke="#734d78" stroke-width="3"/>${face(60,70,34,28)}<path d="M54 26 L60 10 L66 26" fill="#fff0a8" stroke="#876f2d" stroke-width="2"/><path d="M27 51 Q17 64 28 77 M93 51 Q103 64 92 77" fill="none" stroke="#c9a5df" stroke-width="8" stroke-linecap="round"/>`;
+  else if(k==='penguin') art=`<ellipse cx="60" cy="68" rx="36" ry="38" fill="#29343d" stroke="#172027" stroke-width="3"/><ellipse cx="60" cy="73" rx="27" ry="30" fill="#f3f0e8"/>${face(60,61,23,20)}<path d="M53 70 L67 70 L60 78Z" fill="#e5a83d"/><path d="M30 69 L12 82 L31 88 M90 69 L108 82 L89 88" fill="#29343d"/>`;
+  else if(k==='deer') art=`<path d="M39 46 Q29 30 34 17 M81 46 Q91 30 86 17 M34 28 Q24 24 19 16 M86 28 Q96 24 101 16" fill="none" stroke="#855b3e" stroke-width="6" stroke-linecap="round"/>${face(60,70,34,28)}<circle cx="45" cy="49" r="4" fill="#fff"/><circle cx="75" cy="49" r="4" fill="#fff"/><path d="M54 84 Q60 88 66 84" stroke="#855b3e" stroke-width="3" fill="none"/>`;
+  else if(k==='phoenix') art=`<path d="M60 95 C22 89 22 53 44 43 C37 27 51 17 60 30 C69 17 83 27 76 43 C98 53 98 89 60 95Z" fill="#ff8b42" stroke="#7b4529" stroke-width="3"/><path d="M31 76 Q14 64 19 48 Q32 56 39 67 M89 76 Q106 64 101 48 Q88 56 81 67" fill="#ffd15c" stroke="#7b4529" stroke-width="3"/>${face(60,65,30,25)}<path d="M54 78 L60 85 L66 78" fill="#ffd15c"/>`;
+  else if(k==='moonbunny') art=`<circle cx="60" cy="60" r="39" fill="#8798e8" stroke="#4b5689" stroke-width="3"/><path d="M40 39 Q33 12 46 15 Q55 20 52 41 M80 39 Q87 12 74 15 Q65 20 68 41" fill="#aeb8ff" stroke="#4b5689" stroke-width="3"/>${face(60,67,29,24)}<path d="M86 30 A18 18 0 1 0 90 61 A15 15 0 1 1 86 30Z" fill="#fff2a8"/>`;
+  else if(k==='whale') art=`<path d="M18 67 Q60 25 102 67 Q93 100 60 99 Q27 100 18 67Z" fill="#6ca7d9" stroke="#355b7c" stroke-width="3"/><path d="M60 33 Q50 18 60 12 Q70 18 60 33" fill="#8ac3ef" stroke="#355b7c" stroke-width="3"/>${face(60,68,32,25)}<path d="M45 88 Q60 96 75 88" fill="none" stroke="#355b7c" stroke-width="3"/>`;
+  else if(k==='sprout') art=`<path d="M60 88 Q59 63 60 43" stroke="#477746" stroke-width="7" stroke-linecap="round"/><path d="M60 50 Q28 50 28 26 Q52 25 60 43Z" fill="#7fcf72" stroke="#477746" stroke-width="3"/><path d="M60 52 Q92 50 92 26 Q68 25 60 43Z" fill="#a4df7d" stroke="#477746" stroke-width="3"/>${face(60,91,25,17)}`;
+  else art=`<ellipse cx="60" cy="70" rx="36" ry="27" fill="#9aa0a5" stroke="#555d61" stroke-width="3"/><circle cx="47" cy="64" r="5" fill="#26302a"/><circle cx="73" cy="64" r="5" fill="#26302a"/><path d="M50 78 Q60 83 70 78" fill="none" stroke="#555d61" stroke-width="3"/>`;
+  return common+art+'</svg>';
+}
+
+function memeImageV2(key,size=82){
+  const labels={doge:'DOGE',bonk:'BONK',stonks:'STONKS',giga:'GIGA',troll:'TROLL',catjam:'CAT JAM',pepe:'PEPE',among:'SUS',npc:'NPC',galaxybrain:'GALAXY',dancing:'DANCE',stares:'STARE',ukrainian:'UA',kazakh:'KZ',rainbowbrain:'RAINBOW'};
+  const text=labels[key]||'MEME';
+  return `<svg viewBox="0 0 120 90" width="${size}" height="${size*.75}" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="112" height="82" rx="16" fill="#222b25" stroke="#80927d" stroke-width="3"/><circle cx="60" cy="42" r="25" fill="#d9d4bc"/><circle cx="51" cy="38" r="4"/><circle cx="69" cy="38" r="4"/><path d="M49 51 Q60 58 71 51" fill="none" stroke="#333" stroke-width="3"/><text x="60" y="78" text-anchor="middle" font-size="11" font-weight="800" fill="#f0e7c9">${text}</text></svg>`;
+}
+
+function reelHtmlV2(type){
+  return `<div class="fortune-reel" id="${type}WheelReel"><div class="fortune-marker"></div><div class="fortune-track" id="${type}WheelTrack"></div></div>`;
+}
+
+function renderWheelsV2(){
+  ensureExtraState();
+  const grid=document.getElementById('wheelGrid'); if(!grid)return;
+  const build=(type,title,desc,obj)=>{
+    const owned=Object.values(type==='pets'?state.pets:state.memes).reduce((a,b)=>a+b,0);
+    return `<div class="wheel-card-v2"><h3>${title}</h3><p>${desc}</p>${reelHtmlV2(type)}<div class="wheel-owned">Получено: ${owned}</div><button class="btn primary full" id="${type}WheelBtn">Крутить</button></div>`;
+  };
+  grid.innerHTML=build('pets','Колесо питомцев','Питомцы дают постоянный пассивный бонус. Можно экипировать только одного.',PETS)+build('memes','Колесо мемов','Мемы дают постоянные пассивные бонусы.',MEMES);
+  renderWheelTrackV2('pets'); renderWheelTrackV2('memes');
+  document.getElementById('petsWheelBtn').onclick=()=>spinWheelV2('pets');
+  document.getElementById('memesWheelBtn').onclick=()=>spinWheelV2('memes');
+  renderPetPanelV2();
+}
+function renderWheelTrackV2(type){
+  const track=document.getElementById(type+'WheelTrack'); if(!track)return;
+  const obj=type==='pets'?PETS:MEMES;
+  const keys=Object.keys(obj); const arr=[];
+  for(let i=0;i<24;i++) arr.push(keys[i%keys.length]);
+  track.innerHTML=arr.map(k=>`<div class="fortune-tile">${type==='pets'?petImageV2(k,74):memeImageV2(k,74)}<span>${obj[k].name}</span></div>`).join('');
+  track.style.transform='translateX(0)';
+}
+function spinWheelV2(type){
+  if(window.__wheelBusy)return;
+  window.__wheelBusy=true; ensureExtraState();
+  const obj=type==='pets'?PETS:MEMES;
+  const key=weightedByRarity(obj), item=obj[key];
+  const track=document.getElementById(type+'WheelTrack');
+  const reel=document.getElementById(type+'WheelReel');
+  if(!track||!reel){window.__wheelBusy=false;return;}
+  const keys=Object.keys(obj); const winnerIndex=16;
+  const seq=[]; for(let i=0;i<24;i++) seq.push(keys[(i+Math.floor(Math.random()*keys.length))%keys.length]); seq[winnerIndex]=key;
+  track.innerHTML=seq.map(k=>`<div class="fortune-tile">${type==='pets'?petImageV2(k,74):memeImageV2(k,74)}<span>${obj[k].name}</span></div>`).join('');
+  track.style.transition='none'; track.style.transform='translateX(0)'; void track.offsetWidth;
+  const tile=126; const offset=winnerIndex*tile-((reel.clientWidth||420)/2-tile/2);
+  track.style.transition='transform 1.65s cubic-bezier(.12,.72,.18,1)'; track.style.transform=`translateX(-${offset}px)`;
+  setTimeout(()=>{
+    if(type==='pets') state.pets[key]=(state.pets[key]||0)+1; else state.memes[key]=(state.memes[key]||0)+1;
+    scheduleSave(); toast((type==='pets'?'Питомец: ':'Мем: ')+item.name+' — '+item.rarity+'! '+item.desc);
+    window.__wheelBusy=false; renderWheelsV2(); renderCollection(); renderHome();
+  },1700);
+}
+window.__spinWheel=spinWheelV2;
+
+function renderPetPanelV2(){
+  const panel=document.getElementById('petEquipPanel'); if(!panel)return;
+  const entries=Object.entries(state.pets||{}).filter(([k,v])=>v>0);
+  panel.innerHTML=entries.length?entries.map(([k,v])=>{const p=PETS[k];return `<div class="pet-row-v2"><div class="pet-mini">${petImageV2(k,54)}<div><b>${p.name}</b><small>${p.rarity} · ${p.desc} · ×${v}</small></div></div><button class="btn small ${state.equippedPet===k?'primary':''}" onclick="window.__equipPetV2('${k}')">${state.equippedPet===k?'Экипирован':'Экипировать'}</button></div>`}).join(''):'<span style="color:var(--text-faint)">Пока нет питомцев.</span>';
+}
+window.__equipPetV2=function(k){ensureExtraState();state.equippedPet=state.equippedPet===k?null:k;scheduleSave();renderWheelsV2();renderHome();};
+window.__equipPet=window.__equipPetV2;
+
+function renderPetCompanionV2(){
+  ensureExtraState();
+  let el=document.getElementById('petCompanion');
+  if(!el){el=document.createElement('div');el.id='petCompanion';document.body.appendChild(el);}
+  const p=state.equippedPet?PETS[state.equippedPet]:null;
+  if(!p){el.innerHTML='';return;}
+  el.innerHTML=`<div class="pet-world"><div class="pet-sprite" id="petSprite">${petImageV2(state.equippedPet,78)}</div></div>`;
+  const sprite=document.getElementById('petSprite');
+  if(!sprite)return;
+  let pos=Math.random()*65+5;
+  let stopped=false;
+  const move=()=>{
+    if(!document.body.contains(sprite))return;
+    const wait=900+Math.random()*2400;
+    stopped=Math.random()<.28;
+    if(stopped){ sprite.classList.add('pet-idle'); setTimeout(()=>{sprite.classList.remove('pet-idle');move();},wait); return; }
+    const next=Math.max(3,Math.min(92,pos+(Math.random()-.5)*48));
+    const duration=1800+Math.random()*2500;
+    sprite.style.left=next+'%';
+    sprite.style.transition=`left ${duration}ms linear`;
+    if(Math.random()<.32) setTimeout(()=>{sprite.classList.add('pet-jump');setTimeout(()=>sprite.classList.remove('pet-jump'),420)},duration*.45);
+    pos=next; setTimeout(move,duration+Math.random()*900);
+  };
+  sprite.style.left=pos+'%'; setTimeout(move,500);
+}
+
+/* Mutations now come from the normal seed roll with a small chance. No mutation wheel. */
+const ROLL_MUTATIONS_V2=[
+  {label:'Золотой',mult:6,chance:0.010},{label:'Алмазный',mult:36,chance:0.003},{label:'Мифический',mult:220,chance:0.001},
+  {label:'Серая куртка',mult:1.35,chance:0.012},{label:'Замороженный',mult:1.5,chance:0.010},{label:'Удача',mult:1.4,chance:0.010},
+  {label:'Разорванный',mult:1.6,chance:0.008},{label:'Галактический',mult:2,chance:0.004},{label:'Метеор',mult:3,chance:0.002},{label:'Казах',mult:2,chance:0.002}
+];
+window.__tryRollMutation=function(seedId,evInfo){
+  ensureMutationState();
+  let pool=ROLL_MUTATIONS_V2.slice();
+  if(evInfo&&evInfo.active&&evInfo.def&&evInfo.def.permanentMutation){
+    pool=pool.concat([{label:evInfo.def.permanentMutation.label,mult:evInfo.def.permanentMutation.mult,chance:0.025}]);
+  }
+  const total=pool.reduce((a,x)=>a+x.chance,0);
+  if(Math.random()>total)return;
+  let r=Math.random()*total, picked=pool[0];
+  for(const m of pool){r-=m.chance;if(r<=0){picked=m;break;}}
+  const arr=state.mutations[String(seedId)]||(state.mutations[String(seedId)]=[]);
+  arr.push({label:picked.label,mult:picked.mult});
+  scheduleSave();
+  toast(SEEDS[seedId].name+' получила мутацию «'+picked.label+'» ×'+picked.mult+'!');
+};
+
+/* Remove the mutation wheel completely and use reel-style wheels. */
+renderWheels=renderWheelsV2;
+
+/* Real shop: visible in navigation and with a 5-minute rotating stock. */
+function renderShopV2(){
+  const grid=document.getElementById('minigamesGrid'); if(!grid)return;
+  const cycle=Math.floor(Date.now()/(5*60*1000));
+  const all=[
+    {name:'Зелье удачи',icon:'✦',price:2500,desc:'+50% удачи на 3 минуты',buy(){addBuff('Зелье удачи',1.5,180000);}},
+    {name:'Зелье денег',icon:'◈',price:4000,desc:'×1.5 денег на 3 минуты',buy(){addBuff('Зелье денег',1.5,180000);}},
+    {name:'Зелье мутаций',icon:'✧',price:6000,desc:'Повышает шанс мутации в обычном ролле на 5 минут',buy(){if(!state.buffs)state.buffs=[];addBuff('Зелье мутаций',1.25,300000);}},
+    {name:'Спин питомца',icon:'P',price:7500,desc:'Бесплатное вращение колеса питомцев',buy(){spinWheelV2('pets');}},
+    {name:'Спин мема',icon:'M',price:7500,desc:'Бесплатное вращение колеса мемов',buy(){spinWheelV2('memes');}},
+    {name:'Скидка на следующий ролл',icon:'−',price:3500,desc:'Следующий обычный ролл стоит на 30% дешевле',buy(){state.buffs=state.buffs||[];state.buffs.push({id:'rollDisc'+Date.now(),label:'Скидка на ролл',mult:0.7,until:Date.now()+600000});scheduleSave();}}
+  ];
+  const shuffled=all.map((x,i)=>({x,i,score:((cycle*17+i*31)%97)})).sort((a,b)=>a.score-b.score);
+  const stock=shuffled.slice(0,4).map(z=>z.x);
+  const discount=cycle%3===0?0.7:1;
+  window.__shopStock=stock;
+  grid.innerHTML=stock.map((x,i)=>{const price=Math.round(x.price*discount);return `<div class="mg-card"><div class="mg-emoji shop-art">${x.icon}</div><h3>${x.name}</h3><p>${x.desc}${discount<1?' · -30%':''}</p><button class="btn primary" ${state.money<price?'disabled':''} onclick="window.__buyShopV2(${i},${price})">Купить — ${formatMoney(price)}</button></div>`}).join('');
+}
+window.__buyShopV2=function(i,price){const x=window.__shopStock&&window.__shopStock[i];if(!x||state.money<price)return;state.money-=price;x.buy();scheduleSave();renderHome();renderShopV2();};
+renderMinigames=renderShopV2;
+
+/* Use images in the collection too. */
+const oldCollectionV2=renderCollection;
+renderCollection=function(){
+  oldCollectionV2();
+  const grid=document.getElementById('collectionGrid');
+  if(!grid)return;
+  grid.querySelectorAll('[data-ct]').forEach(function(btn){
+    btn.onclick=function(){
+      const inner=document.getElementById('collectionInner');
+      if(!inner)return;
+      if(btn.dataset.ct==='pets'){
+        inner.innerHTML='<div class="collection-list pet-collection-v2">'+Object.entries(PETS).map(function(pair){
+          const k=pair[0], p=pair[1];
+          return '<div class="collect-row"><div class="pet-mini">'+petImageV2(k,62)+'<div><b>'+p.name+'</b><small>'+p.rarity+' · '+p.desc+'</small></div></div><span>'+(state.pets[k]||0)+'×</span></div>';
+        }).join('')+'</div>';
+      } else if(btn.dataset.ct==='memes'){
+        inner.innerHTML='<div class="collection-list">'+Object.entries(MEMES).map(function(pair){
+          const k=pair[0], m=pair[1];
+          return '<div class="collect-row"><div class="pet-mini">'+memeImageV2(k,62)+'<div><b>'+m.name+'</b><small>'+m.rarity+' · '+m.desc+'</small></div></div><span>'+(state.memes[k]||0)+'×</span></div>';
+        }).join('')+'</div>';
+      }
+    };
+  });
+};
+
+/* Override companion hooks so the pet gets a fresh random walk after equip/navigation. */
+renderPetCompanion=renderPetCompanionV2;
+const __renderHomeV2=renderHome;
+renderHome=function(){__renderHomeV2();renderPetCompanionV2();};
+const __fullRenderV2=fullRender;
+fullRender=function(){__fullRenderV2();renderWheelsV2();renderShopV2();renderPetCompanionV2();};
+
+const v2Style=document.createElement('style');
+v2Style.textContent=`
+.wheel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px}
+.wheel-card-v2{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px;overflow:hidden}
+.wheel-card-v2 h3{font-family:var(--font-display);margin:0 0 5px;font-size:20px}.wheel-card-v2 p{color:var(--text-dim);font-size:12.5px;min-height:38px}
+.fortune-reel{height:150px;position:relative;overflow:hidden;border-radius:14px;background:var(--surface-2);border:1px solid var(--border-soft);margin:14px 0}
+.fortune-track{height:100%;display:flex;align-items:center;gap:8px;padding:0 8px;width:max-content}
+.fortune-tile{width:118px;height:124px;flex:0 0 118px;border-radius:12px;background:var(--surface-3);border:1px solid var(--border-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden}
+.fortune-tile span{font-size:10px;color:var(--text-dim);max-width:108px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fortune-marker{position:absolute;z-index:3;top:0;bottom:0;left:50%;width:2px;background:var(--gold);box-shadow:0 0 10px rgba(211,164,78,.75);pointer-events:none}.fortune-marker:before{content:"";position:absolute;top:0;left:-6px;border-left:7px solid transparent;border-right:7px solid transparent;border-top:10px solid var(--gold)}
+.pet-row-v2{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--border-soft);background:var(--surface-2);border-radius:12px;margin-bottom:8px}.pet-mini{display:flex;align-items:center;gap:10px}.pet-mini small{display:block;color:var(--text-dim);font-size:11px;margin-top:2px}
+#petCompanion{position:fixed;left:0;right:0;bottom:8px;height:94px;pointer-events:none;z-index:35;overflow:hidden}.pet-world{position:relative;width:100%;height:100%}.pet-sprite{position:absolute;bottom:4px;width:84px;height:84px;will-change:left,transform;transition:filter .2s}.pet-sprite svg{display:block;filter:drop-shadow(0 5px 7px rgba(0,0,0,.28))}.pet-sprite.pet-idle{animation:petBreath 1.5s ease-in-out infinite}.pet-sprite.pet-jump{animation:petJump .42s ease-out}.pet-sprite:after{content:"";position:absolute;left:17px;right:17px;bottom:1px;height:7px;border-radius:50%;background:rgba(0,0,0,.22);filter:blur(3px)}
+@keyframes petBreath{0%,100%{transform:translateY(0) scaleX(1)}50%{transform:translateY(-3px) scaleX(1.02)}}@keyframes petJump{0%{transform:translateY(0)}45%{transform:translateY(-25px)}100%{transform:translateY(0)}}
+.shop-art{font-size:38px;font-weight:800;color:var(--gold-soft)}
+@media(max-width:880px){#petCompanion{bottom:62px}.wheel-grid{grid-template-columns:1fr}.fortune-reel{height:140px}}
+`;
+document.head.appendChild(v2Style);
+ensureExtraState();
+renderWheelsV2();renderShopV2();renderPetCompanionV2();
+
+})();
+</script>
+</body>
+</html>
